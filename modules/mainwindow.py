@@ -1,7 +1,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets, QtPrintSupport
 import re
 from modules.widget import Widget
+from time import localtime
 from datetime import date
+import calendar
 
 class MainWindow(QtWidgets.QMainWindow):
     """
@@ -26,40 +28,29 @@ class MainWindow(QtWidgets.QMainWindow):
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_N
                                       )
         toolBar.addAction(action)
-        action.setStatusTip("Создание новой, пустой головоломки")
+        action.setStatusTip("Создание нового файла")
 
         action = myMenuFile.addAction(QtGui.QIcon(r"images/open.png"),
                                       "&Открыть...", self.onOpenFile,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_O)
         toolBar.addAction(action)
-        action.setStatusTip("Загрузка головоломки из файла")
+        action.setStatusTip("Загрузка из файла")
 
         action = myMenuFile.addAction(QtGui.QIcon(r"images/save.png"),
                                       "Со&хранить...", self.onSave,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_S)
         toolBar.addAction(action)
-        action.setStatusTip("Сохранение головоломки в файле")
+        action.setStatusTip("Сохранение в файле")
 
-        action = myMenuFile.addAction("&Сохранить компактно...",
-                                      self.onSaveMini)
-        action.setStatusTip("Сохранение головоломки в компактном формате")
         myMenuFile.addSeparator()
         toolBar.addSeparator()
 
-        action = myMenuFile.addAction(QtGui.QIcon(r"images/print.png"),
-                                      "&Печать...", self.onPrint,
-                                      QtCore.Qt.CTRL + QtCore.Qt.Key_P)
-        toolBar.addAction(action)
-        action.setStatusTip("Печать головоломки")
         action = myMenuFile.addAction(QtGui.QIcon(r"images/preview.png"),
                                       "П&редварительный просмотр...",
                                       self.onPreview)
         toolBar.addAction(action)
         action.setStatusTip("Предварительный просмотр головоломки")
 
-        action = myMenuFile.addAction("П&араметры страницы...",
-                                      self.onPageSetup)
-        action.setStatusTip("Задание параметров страницы")
         myMenuFile.addSeparator()
         toolBar.addSeparator()
         action = myMenuFile.addAction("&Выход", QtWidgets.qApp.quit,
@@ -71,10 +62,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                       "К&опировать", self.onCopyData,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_C)
         toolBar.addAction(action)
-        action.setStatusTip("Копирование головоломки в буфер обмена")
-        action = myMenuEdit.addAction("&Копировать компактно",
-                                      self.onCopyDataMini)
-        action.setStatusTip("Копирование в компактном формате")
+        action.setStatusTip("Копирование в буфер обмена")
         action = myMenuEdit.addAction("Копировать &для Excel",
                                       self.onCopyDataExcel)
         action.setStatusTip("Копирование в формате MS Excel")
@@ -91,12 +79,21 @@ class MainWindow(QtWidgets.QMainWindow):
         toolBar.setFloatable(False)
         self.addToolBar(toolBar)
         #====================строка состояния
-        d = date(2020, 12, 20) - date.today()
-        self.label = QtWidgets.QLabel("дней до конца семестра: " + str(d.days) + " ")
+        time = localtime()
+        first_date = date(time.tm_year, 9, 1)
+        last_date = date(time.tm_year, 12, 21)
+        days_left = last_date - date.today()
+        days_past = date.today() - first_date
+        # 7 - количество дней в неделе
+        this_week = (days_past.days + calendar.monthrange(2020, 9)[0] + 7) // 7
+        self.label = QtWidgets.QLabel("дней до конца семестра: " + str(days_left.days) + " ")
         self.label.setMinimumSize(160, 20)
+        self.label1 = QtWidgets.QLabel("текущая неделя: " + str(this_week) + " ")
+        self.label1.setMinimumSize(160, 20)
         status_bar = self.statusBar()
         status_bar.setSizeGripEnabled(False)
         status_bar.addPermanentWidget(self.label)
+        status_bar.addPermanentWidget(self.label1)
 
     def onCopyData(self):
         QtWidgets.QApplication.clipboard().setText(
