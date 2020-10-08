@@ -21,20 +21,20 @@ class MainWindow(QtWidgets.QMainWindow):
         toolBar = QtWidgets.QToolBar()
         #=========================первое меню
         myMenuFile = menuBar.addMenu("&Файл")
-        action = myMenuFile.addAction(QtGui.QIcon(r"../images/new.png"),
+        action = myMenuFile.addAction(QtGui.QIcon(r"images/new.png"),
             "&Новый", self.widget.onClearAllCells,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_N
                                       )
         toolBar.addAction(action)
         action.setStatusTip("Создание новой, пустой головоломки")
 
-        action = myMenuFile.addAction(QtGui.QIcon(r"../images/open.png"),
+        action = myMenuFile.addAction(QtGui.QIcon(r"images/open.png"),
                                       "&Открыть...", self.onOpenFile,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_O)
         toolBar.addAction(action)
         action.setStatusTip("Загрузка головоломки из файла")
 
-        action = myMenuFile.addAction(QtGui.QIcon(r"../images/save.png"),
+        action = myMenuFile.addAction(QtGui.QIcon(r"images/save.png"),
                                       "Со&хранить...", self.onSave,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_S)
         toolBar.addAction(action)
@@ -46,12 +46,12 @@ class MainWindow(QtWidgets.QMainWindow):
         myMenuFile.addSeparator()
         toolBar.addSeparator()
 
-        action = myMenuFile.addAction(QtGui.QIcon(r"../images/print.png"),
+        action = myMenuFile.addAction(QtGui.QIcon(r"images/print.png"),
                                       "&Печать...", self.onPrint,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_P)
         toolBar.addAction(action)
         action.setStatusTip("Печать головоломки")
-        action = myMenuFile.addAction(QtGui.QIcon(r"../images/preview.png"),
+        action = myMenuFile.addAction(QtGui.QIcon(r"images/preview.png"),
                                       "П&редварительный просмотр...",
                                       self.onPreview)
         toolBar.addAction(action)
@@ -67,7 +67,7 @@ class MainWindow(QtWidgets.QMainWindow):
         action.setStatusTip("Завершение работы приложения")
         #===========================второе меню
         myMenuEdit = menuBar.addMenu("&Правка")
-        action = myMenuEdit.addAction(QtGui.QIcon(r"../images/copy.png"),
+        action = myMenuEdit.addAction(QtGui.QIcon(r"images/copy.png"),
                                       "К&опировать", self.onCopyData,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_C)
         toolBar.addAction(action)
@@ -78,7 +78,7 @@ class MainWindow(QtWidgets.QMainWindow):
         action = myMenuEdit.addAction("Копировать &для Excel",
                                       self.onCopyDataExcel)
         action.setStatusTip("Копирование в формате MS Excel")
-        action = myMenuEdit.addAction(QtGui.QIcon(r"../images/paste.png"),
+        action = myMenuEdit.addAction(QtGui.QIcon(r"images/paste.png"),
                                       "&Вставить", self.onPasteData,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_V)
         toolBar.addAction(action)
