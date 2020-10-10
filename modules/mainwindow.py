@@ -1,9 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets, QtPrintSupport
 import re
 from modules.widget import Widget
-from time import localtime
-from datetime import date
-import calendar
+from modules.mydate import myDate
+
 
 class MainWindow(QtWidgets.QMainWindow):
     """
@@ -44,15 +43,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         myMenuFile.addSeparator()
         toolBar.addSeparator()
-
-        action = myMenuFile.addAction(QtGui.QIcon(r"images/preview.png"),
-                                      "П&редварительный просмотр...",
-                                      self.onPreview)
-        toolBar.addAction(action)
-        action.setStatusTip("Предварительный просмотр головоломки")
-
-        myMenuFile.addSeparator()
-        toolBar.addSeparator()
         action = myMenuFile.addAction("&Выход", QtWidgets.qApp.quit,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
         action.setStatusTip("Завершение работы приложения")
@@ -74,21 +64,28 @@ class MainWindow(QtWidgets.QMainWindow):
         action = myMenuEdit.addAction("Вставить &из Excel",
                                       self.onPasteDataExcel)
         action.setStatusTip("Вставка головоломки из MS Excel")
+        #===========================третье меню
+        myMenuModel = menuBar.addMenu("&Модель таблицы")
+        action = myMenuModel.addAction("По умолчанию",
+                                      self.widget.table.set_standart_model)
+        action.setStatusTip("7 дней от текущего дня")
+        myMenuModel.addSeparator()
+        action = myMenuModel.addAction("Неделя",
+                                      self.widget.table.set_week_model)
+        action.setStatusTip("Выбрать неделю")
+        action = myMenuModel.addAction("Месяц",
+                                      self.widget.table.set_month_model)
+        action.setStatusTip("Выбрать месяц")
+
         myMenuEdit.addSeparator()
         toolBar.setMovable(False)
         toolBar.setFloatable(False)
         self.addToolBar(toolBar)
+        myD = myDate()
         #====================строка состояния
-        time = localtime()
-        first_date = date(time.tm_year, 9, 1)
-        last_date = date(time.tm_year, 12, 21)
-        days_left = last_date - date.today()
-        days_past = date.today() - first_date
-        # 7 - количество дней в неделе
-        this_week = (days_past.days + calendar.monthrange(2020, 9)[0] + 7) // 7
-        self.label = QtWidgets.QLabel("дней до конца семестра: " + str(days_left.days) + " ")
+        self.label = QtWidgets.QLabel("дней до конца семестра: " + str(myD.days_left.days) + " ")
         self.label.setMinimumSize(160, 20)
-        self.label1 = QtWidgets.QLabel("текущая неделя: " + str(this_week) + " ")
+        self.label1 = QtWidgets.QLabel("текущая неделя: " + str(myD.this_week) + " ")
         self.label1.setMinimumSize(160, 20)
         status_bar = self.statusBar()
         status_bar.setSizeGripEnabled(False)
@@ -181,17 +178,3 @@ class MainWindow(QtWidgets.QMainWindow):
                 QtWidgets.QMessageBox.information(self, "Судоку",
                                                   "Не удалось сохранить файл")
 
-    def onPrint(self):
-        pd = QtPrintSupport.QPrintDialog(self.printer, parent=self)
-        pd.setOptions(QtPrintSupport.QAbstractPrintDialog.PrintToFile |
-                      QtPrintSupport.QAbstractPrintDialog.PrintSelection)
-        if pd.exec() == QtWidgets.QDialog.Accepted:
-            self.widget.print(self.printer)
-
-    def onPreview(self):
-        pd = PreviewDialog(self)
-        pd.exec()
-
-    def onPageSetup(self):
-        pd = QtPrintSupport.QPageSetupDialog(self.printer, parent=self)
-        pd.exec()
