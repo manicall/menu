@@ -64,25 +64,27 @@ class MainWindow(QtWidgets.QMainWindow):
         action = myMenuEdit.addAction("Вставить &из Excel",
                                       self.onPasteDataExcel)
         action.setStatusTip("Вставка головоломки из MS Excel")
-        #===========================третье меню
-        myMenuModel = menuBar.addMenu("&Модель таблицы")
-        action = myMenuModel.addAction("По умолчанию",
-                                      self.widget.table.set_standart_model)
-        action.setStatusTip("7 дней от текущего дня")
-        myMenuModel.addSeparator()
-        action = myMenuModel.addAction("Неделя",
-                                      self.widget.table.set_week_model)
-        action.setStatusTip("Выбрать неделю")
-        action = myMenuModel.addAction("Месяц",
-                                      self.widget.table.set_month_model)
-        action.setStatusTip("Выбрать месяц")
 
         myMenuEdit.addSeparator()
         toolBar.setMovable(False)
         toolBar.setFloatable(False)
         self.addToolBar(toolBar)
-        myD = myDate()
+        #===========================третье меню
+        myMenuModel = menuBar.addMenu("&Модель таблицы")
+        action = myMenuModel.addAction("По умолчанию", self.widget.table.set_standart_model)
+        action.setStatusTip("7 дней от текущего дня")
+        myMenuModel.addSeparator()
+
+        action = myMenuModel.addAction("Неделя", self.widget.table.set_week_model)
+        action.setStatusTip("Выбрать неделю")
+
+        action = myMenuModel.addAction("Месяц", self.widget.table.set_month_model)
+        action.setStatusTip("Выбрать месяц")
+
+        action = myMenuModel.addAction("На семестр", self.widget.table.set_semestr_model)
+        action.setStatusTip("Показать таблицу по всему семестру")
         #====================строка состояния
+        myD = myDate()
         self.label = QtWidgets.QLabel("дней до конца семестра: " + str(myD.days_left.days) + " ")
         self.label.setMinimumSize(160, 20)
         self.label1 = QtWidgets.QLabel("текущая неделя: " + str(myD.this_week) + " ")

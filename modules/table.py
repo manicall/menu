@@ -2,7 +2,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from modules.mydate import myDate
 
 
-
 class Models:
     def __init__(self):
         self.myD = myDate()
@@ -13,7 +12,7 @@ class Models:
         model.setHorizontalHeaderLabels(["Дисциплина"])
         model.setVerticalHeaderLabels(list("{0:10}".format("")))
         model.setVerticalHeaderLabels(["Дата"])
-        full_date = self.myD.standart_module_dates()
+        full_date = self.myD.standart_model_dates()
         for col in range(7):
             model.setItem(0, col + 1, self.get_item("{0:^10}".format(full_date[col])))
         model.setItem(0, 0, self.get_item(''))
@@ -33,9 +32,22 @@ class Models:
                                                "Выбрать неделю", weeks,
                                                current=self.myD.this_week - 1)
 
-
     def month_model(self):
         pass
+
+    def semestr_model(self):
+        model = QtGui.QStandardItemModel(10, self.myD.total_date.days)
+        model.setHorizontalHeaderLabels(list("{0:112}".format("")))
+        model.setHorizontalHeaderLabels(["Дисциплина"])
+        model.setVerticalHeaderLabels(list("{0:10}".format("")))
+        model.setVerticalHeaderLabels(["Дата"])
+
+        full_date = self.myD.semestr_model_dates()
+        for col in range(self.myD.total_date.days):
+            model.setItem(0, col + 1, self.get_item("{0:^10}".format(full_date[col])))
+        model.setItem(0, 0, self.get_item(''))
+        return model
+
 
     @staticmethod
     def get_item(str):
@@ -64,3 +76,6 @@ class Table:
 
     def set_month_model(self):
         self.change_model(self.models.month_model())
+
+    def set_semestr_model(self):
+        self.change_model(self.models.semestr_model())
