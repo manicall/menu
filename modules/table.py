@@ -5,12 +5,13 @@ from modules.mydate import myDate
 class Models:
     def __init__(self):
         self.myD = myDate()
+        self.semestr_model = self.semestr_model()
 
     def standart_model(self):
-        model = QtGui.QStandardItemModel(10, 8)
+        model = self.semestr_model
         model.setHorizontalHeaderLabels(list("{0:8}".format("")))
         model.setHorizontalHeaderLabels(["Дисциплина"])
-        model.setVerticalHeaderLabels(list("{0:10}".format("")))
+        model.setVerticalHeaderLabels(list("{0:2}".format("")))
         model.setVerticalHeaderLabels(["Дата"])
         full_date = self.myD.standart_model_dates()
         for col in range(7):
