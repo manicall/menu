@@ -48,7 +48,7 @@ class Table:
         answer = self.choose_week()
         if(answer[1]):
             self.showAllColumns()
-            number_of_week = answer[0] - 1
+            number_of_week = int(answer[0].split()[1]) - 1
             weeks_before_last_date = self.myD.total_weeks - number_of_week
             self.showAllColumns()
             self.hideColumns(1, number_of_week*self.myD.WEEK - 1)
@@ -68,15 +68,6 @@ class Table:
             while (i != self.myD.total_days + 1):
                 self.view.hideColumn(i)
                 i+=1
-
-
-
-
-
-
-
-
-
 
     def show_semestr_table(self):
         self.showAllColumns()

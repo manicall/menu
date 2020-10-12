@@ -25,5 +25,3 @@ class myDate:
             day_of_week = calendar.day_name[date.weekday()]
             full_dates.append(str(day) + '.' + str(month) + '\n' + day_of_week)
         return full_dates
-
-
