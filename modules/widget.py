@@ -12,3 +12,5 @@ class Widget(QtWidgets.QWidget):
 
     def onClearAllCells(self):
         pass
+
+
