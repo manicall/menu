@@ -13,18 +13,12 @@ class MainWindow(QtWidgets.QMainWindow):
     """
 
     def __init__(self, parent=None):
-        QtWidgets.QMainWindow.__init__(self, parent,
-                                       flags=QtCore.Qt.Window |
-                                             QtCore.Qt.MSWindowsFixedSizeDialogHint)
+        QtWidgets.QMainWindow.__init__(self, parent, flags=QtCore.Qt.Window)
         self.printer = QtPrintSupport.QPrinter()
         self.widget = Widget()
         self.setCentralWidget(self.widget)
         self.settings = QtCore.QSettings("max", "menu")
-        self.settings.clear()
         self.fileName = self.settings.value('fileName')
-        print(self.fileName)
-
-
         menuBar = self.menuBar()
         toolBar = QtWidgets.QToolBar()
         # первое меню=========================================================
@@ -58,6 +52,11 @@ class MainWindow(QtWidgets.QMainWindow):
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
         action.setStatusTip("Завершение работы приложения")
 
+        # второе меню=========================================================
+        myMenuEdit = menuBar.addMenu('&Редактировать')
+        action = myMenuEdit.addAction("&Объединить", self.widget.span_cells)
+        action.setStatusTip("Объединить выбранные ячейки")
+
         # третье меню===============================================
         myMenuModel = menuBar.addMenu("&Модель таблицы")
         action = myMenuModel.addAction("По умолчанию", self.widget.table.show_default_table)
@@ -90,7 +89,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def save_to_excel(self):
         if not self.settings.contains('fileName'):
             self.fileName = QtWidgets.QFileDialog.getSaveFileName(self,
-                                                         "Выберите файл", QtCore.QDir.homePath(),
+                                                         "Выберите файл", self.fileName,
                                                          "Excel (*.xlsx)")[0]
             self.settings.setValue('fileName', self.fileName)
         if self.fileName:
@@ -104,12 +103,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     except:
                         values[i].append("")
             df = pd.DataFrame(values)
-            print(df)
             df.to_excel(self.fileName, index=False, header=False)
 
     def read_from_excel(self):
         self.fileName = QtWidgets.QFileDialog.getOpenFileName(self,
-                                                         "Выберите файл", QtCore.QDir.homePath(),
+                                                         "Выберите файл", self.fileName,
                                                          "Excel (*.xlsx)")[0]
         if self.fileName:
             self.settings.setValue('fileName', self.fileName)
@@ -127,11 +125,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def save_to_excel_as(self):
         self.fileName = QtWidgets.QFileDialog.getSaveFileName(self,
-                                                              "Выберите файл", QtCore.QDir.currentPath(),
+                                                              "Выберите файл", self.fileName,
                                                               "Excel (*.xlsx)")[0]
         if self.fileName:
             self.settings.setValue('fileName', self.fileName)
             model = self.widget.table.model
+            '''
             values = []
             for i in range(0, model.rowCount()):
                 values.append([])
@@ -141,5 +140,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     except:
                         values[i].append("")
             df = pd.DataFrame(values)
-            print(df)
             df.to_excel(self.fileName, index=False, header=False)
+            '''
+
+

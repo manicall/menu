@@ -2,24 +2,19 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from modules.mydate import myDate
 import datetime as dt
 import calendar
-#размеры полной таблицы
+# размеры полной таблицы
 count_columns = 112
 count_rows = 10
 
 class Models:
     def __init__(self):
         self.myD = myDate()
-        self.model = QtGui.QStandardItemModel(10, self.myD.total_days)
-        # создает 112 столбцов и заполняет их заголовки пустыми строками
-        self.model.setHorizontalHeaderLabels(list("{0:112}".format("")))
-        self.model.setHorizontalHeaderLabels(["Время"])
-        # создает 10 строк и заполняет их заголовки пустыми строками
-        self.model.setVerticalHeaderLabels(list("{0:10}".format("")))
-        self.model.setVerticalHeaderLabels(["Дата"])
+        self.model = QtGui.QStandardItemModel(50, self.myD.total_days)
         full_date = self.myD.model_dates()
         for col in range(self.myD.total_days):
             self.model.setItem(0, col + 1, self.get_item(full_date[col]))
         self.model.setItem(0, 0, self.get_item(''))
+
 
     @staticmethod
     def get_item(str):
@@ -29,6 +24,7 @@ class Models:
         item.setSelectable(False)
         return item
 
+
 class Table:
     def __init__(self):
         self.myD = myDate()
@@ -36,6 +32,8 @@ class Table:
         self.model.dataChanged.connect(self.table_changed)
         self.view = QtWidgets.QTableView()
         self.view.setModel(self.model)
+        self.view.horizontalHeader().hide()
+        self.view.verticalHeader().hide()
         self.show_default_table()
         self.view.resizeRowToContents(0)
 
@@ -105,3 +103,4 @@ class Table:
 
     def table_changed(self):
         self.view.resizeRowToContents(self.view.currentIndex().row())
+

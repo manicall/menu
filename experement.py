@@ -1,11 +1,16 @@
-from PyQt5 import QtCore, QtWidgets
+import pickle
+from PyQt5 import QtWidgets, QtGui
+from modules.mainwindow import MainWindow
 import sys
+
 app = QtWidgets.QApplication(sys.argv)
-settings = QtCore.QSettings("max", "menu")
-v1 = 12
-print("Сохраняем настройки")
-settings.setValue("Значение 1", v1)
-#settings.sync()
-print("Считываем настройки")
-lv1 = settings.value("Значение 1")
-print(lv1)
+desktop = QtWidgets.QApplication.desktop().availableGeometry()
+window = MainWindow()
+window.setWindowTitle("Класс QTableView")
+window.move(0, 0)
+window.resize(desktop.width() // 2 + 110, QtWidgets.QApplication.desktop().height() // 2)
+f = open(r"C:\Users\max\desktop\file.txt", "wb")
+obj = QtGui.QImage(r"images/new.png")
+print(obj)
+pickle.dump(obj, f)
+sys.exit(app.exec_())
