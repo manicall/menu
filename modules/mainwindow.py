@@ -1,12 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets, QtPrintSupport
-import re
 from modules.widget import Widget
 from modules.mydate import myDate
-import sys
 import pandas as pd
-
-
-# import numpy as np
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -24,12 +19,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.printer = QtPrintSupport.QPrinter()
         self.widget = Widget()
         self.setCentralWidget(self.widget)
+        self.settings = QtCore.QSettings("max", "menu")
+        self.settings.clear()
+        self.fileName = self.settings.value('fileName')
+        print(self.fileName)
+
+
         menuBar = self.menuBar()
         toolBar = QtWidgets.QToolBar()
-        # =========================первое меню
+        # первое меню=========================================================
         myMenuFile = menuBar.addMenu("&Файл")
         action = myMenuFile.addAction(QtGui.QIcon(r"images/new.png"),
-                                      "&Новый", self.widget.onClearAllCells,
+                                      "&Новый", self.widget.clear_all_cells,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_N
                                       )
         toolBar.addAction(action)
@@ -44,15 +45,20 @@ class MainWindow(QtWidgets.QMainWindow):
                                       "Со&хранить...", self.save_to_excel,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_S)
         toolBar.addAction(action)
-        action.setStatusTip("Сохранение в файле")
+        action.setStatusTip("Сохранение в текущем файле")
+        action = myMenuFile.addAction(QtGui.QIcon(r"images/save as.png"),
+                                      "Сохранить &как...", self.save_to_excel_as,
+                                      QtCore.Qt.CTRL + QtCore.Qt.Key_S)
+        toolBar.addAction(action)
+        action.setStatusTip("Выбрать файл для сохранения")
+
 
         myMenuFile.addSeparator()
-        toolBar.addSeparator()
         action = myMenuFile.addAction("&Выход", QtWidgets.qApp.quit,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
         action.setStatusTip("Завершение работы приложения")
 
-        # ===========================третье меню
+        # третье меню===============================================
         myMenuModel = menuBar.addMenu("&Модель таблицы")
         action = myMenuModel.addAction("По умолчанию", self.widget.table.show_default_table)
         action.setStatusTip("7 дней от текущего дня")
@@ -66,7 +72,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         action = myMenuModel.addAction("На семестр", self.widget.table.show_semestr_table)
         action.setStatusTip("Показать таблицу по всему семестру")
-        # ====================строка состояния
+
+        toolBar.setMovable(False)
+        toolBar.setFloatable(False)
+        self.addToolBar(toolBar)
+        # строка состояния=======================================
         myD = myDate()
         self.label = QtWidgets.QLabel("дней до конца семестра: " + str(myD.days_left) + " ")
         self.label.setMinimumSize(160, 20)
@@ -78,10 +88,12 @@ class MainWindow(QtWidgets.QMainWindow):
         status_bar.addPermanentWidget(self.label1)
 
     def save_to_excel(self):
-        fileName = QtWidgets.QFileDialog.getSaveFileName(self,
+        if not self.settings.contains('fileName'):
+            self.fileName = QtWidgets.QFileDialog.getSaveFileName(self,
                                                          "Выберите файл", QtCore.QDir.homePath(),
                                                          "Excel (*.xlsx)")[0]
-        if fileName:
+            self.settings.setValue('fileName', self.fileName)
+        if self.fileName:
             model = self.widget.table.model
             values = []
             for i in range(0, model.rowCount()):
@@ -93,15 +105,16 @@ class MainWindow(QtWidgets.QMainWindow):
                         values[i].append("")
             df = pd.DataFrame(values)
             print(df)
-            df.to_excel(fileName, index=False, header=False)
+            df.to_excel(self.fileName, index=False, header=False)
 
     def read_from_excel(self):
-        fileName = QtWidgets.QFileDialog.getOpenFileName(self,
+        self.fileName = QtWidgets.QFileDialog.getOpenFileName(self,
                                                          "Выберите файл", QtCore.QDir.homePath(),
                                                          "Excel (*.xlsx)")[0]
-        if fileName:
+        if self.fileName:
+            self.settings.setValue('fileName', self.fileName)
             model = self.widget.table.model
-            df = pd.read_excel(fileName, index_col=None, header=None)
+            df = pd.read_excel(self.fileName, index_col=None, header=None)
 
             for i in range(df.shape[0]):
                 for j in range(df.shape[1]):
@@ -111,3 +124,22 @@ class MainWindow(QtWidgets.QMainWindow):
                         model.setItem(i, j, item)
             for i in range(model.rowCount()):
                 self.widget.table.view.resizeRowToContents(i)
+
+    def save_to_excel_as(self):
+        self.fileName = QtWidgets.QFileDialog.getSaveFileName(self,
+                                                              "Выберите файл", QtCore.QDir.currentPath(),
+                                                              "Excel (*.xlsx)")[0]
+        if self.fileName:
+            self.settings.setValue('fileName', self.fileName)
+            model = self.widget.table.model
+            values = []
+            for i in range(0, model.rowCount()):
+                values.append([])
+                for j in range(0, model.columnCount()):
+                    try:
+                        values[i].append(model.item(i, j).text())
+                    except:
+                        values[i].append("")
+            df = pd.DataFrame(values)
+            print(df)
+            df.to_excel(self.fileName, index=False, header=False)

@@ -33,6 +33,7 @@ class Table:
     def __init__(self):
         self.myD = myDate()
         self.model = Models().model
+        self.model.dataChanged.connect(self.table_changed)
         self.view = QtWidgets.QTableView()
         self.view.setModel(self.model)
         self.show_default_table()
@@ -101,3 +102,6 @@ class Table:
             if(months[i] == answer[0]):
                 answer = (i + self.myD.first_date.month, answer[1])
         return answer
+
+    def table_changed(self):
+        self.view.resizeRowToContents(self.view.currentIndex().row())

@@ -1,6 +1,11 @@
-import pandas as pd
-
-
-df = pd.read_excel(r'C:\Users\max\Desktop\example.xlsx',index_col=None,header=None)
-print(df)
-#df.to_excel('ToWrite.xlsx',index=False,header=False)
+from PyQt5 import QtCore, QtWidgets
+import sys
+app = QtWidgets.QApplication(sys.argv)
+settings = QtCore.QSettings("max", "menu")
+v1 = 12
+print("Сохраняем настройки")
+settings.setValue("Значение 1", v1)
+#settings.sync()
+print("Считываем настройки")
+lv1 = settings.value("Значение 1")
+print(lv1)
