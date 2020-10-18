@@ -1,39 +1,21 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from modules.mydate import myDate
+from modules.models import Models
 import datetime as dt
 import calendar
 # размеры полной таблицы
-count_columns = 112
-count_rows = 10
-
-class Models:
-    def __init__(self):
-        self.myD = myDate()
-        self.model = QtGui.QStandardItemModel(50, self.myD.total_days)
-        full_date = self.myD.model_dates()
-        for col in range(self.myD.total_days):
-            self.model.setItem(0, col + 1, self.get_item(full_date[col]))
-        self.model.setItem(0, 0, self.get_item(''))
-
-
-    @staticmethod
-    def get_item(str):
-        item = QtGui.QStandardItem(str)
-        item.setTextAlignment(QtCore.Qt.AlignCenter)
-        item.setEditable(False)
-        item.setSelectable(False)
-        return item
 
 
 class Table:
     def __init__(self):
         self.myD = myDate()
         self.model = Models().model
+        self.model_for_save = Models().model_for_save
         self.model.dataChanged.connect(self.table_changed)
         self.view = QtWidgets.QTableView()
         self.view.setModel(self.model)
-        self.view.horizontalHeader().hide()
-        self.view.verticalHeader().hide()
+        #self.view.horizontalHeader().hide()
+        #self.view.verticalHeader().hide()
         self.show_default_table()
         self.view.resizeRowToContents(0)
 
@@ -76,7 +58,7 @@ class Table:
             self.view.hideColumn(col+i)
 
     def showAllColumns(self):
-        for col in range(count_columns):
+        for col in range(self.model.columnCount()):
             self.view.showColumn(col)
 
     def choose_week(self):

@@ -1,16 +1,16 @@
 import pickle
-from PyQt5 import QtWidgets, QtGui
-from modules.mainwindow import MainWindow
-import sys
+'''
+obj1 = ["Строка", (2, 3)]
+obj2 = (1, 2)
+f = open(r"file.txt", "wb")
+pickle.dump(obj1, f) # Сохраняем первый объект
+pickle.dump(obj2, f) # Сохраняем второй объект
+f.close()
 
-app = QtWidgets.QApplication(sys.argv)
-desktop = QtWidgets.QApplication.desktop().availableGeometry()
-window = MainWindow()
-window.setWindowTitle("Класс QTableView")
-window.move(0, 0)
-window.resize(desktop.width() // 2 + 110, QtWidgets.QApplication.desktop().height() // 2)
-f = open(r"C:\Users\max\desktop\file.txt", "wb")
-obj = QtGui.QImage(r"images/new.png")
-print(obj)
-pickle.dump(obj, f)
-sys.exit(app.exec_())
+f = open(r"file.txt", "rb")
+obj1 = pickle.load(f) # Восстанавливаем первый объект
+obj2 = pickle.load(f) # Восстанавливаем второй объект
+print(obj1, obj2)
+
+f.close()
+'''

@@ -2,6 +2,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets, QtPrintSupport
 from modules.widget import Widget
 from modules.mydate import myDate
 import pandas as pd
+import pickle
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -31,17 +32,17 @@ class MainWindow(QtWidgets.QMainWindow):
         action.setStatusTip("Создание нового файла")
 
         action = myMenuFile.addAction(QtGui.QIcon(r"images/open.png"),
-                                      "&Открыть...", self.read_from_excel,
+                                      "&Открыть...", self.read,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_O)
         toolBar.addAction(action)
         action.setStatusTip("Загрузка из файла")
         action = myMenuFile.addAction(QtGui.QIcon(r"images/save.png"),
-                                      "Со&хранить...", self.save_to_excel,
+                                      "Со&хранить...", self.save,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_S)
         toolBar.addAction(action)
         action.setStatusTip("Сохранение в текущем файле")
         action = myMenuFile.addAction(QtGui.QIcon(r"images/save as.png"),
-                                      "Сохранить &как...", self.save_to_excel_as,
+                                      "Сохранить &как...", self.save_as,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_S)
         toolBar.addAction(action)
         action.setStatusTip("Выбрать файл для сохранения")
@@ -86,61 +87,40 @@ class MainWindow(QtWidgets.QMainWindow):
         status_bar.addPermanentWidget(self.label)
         status_bar.addPermanentWidget(self.label1)
 
-    def save_to_excel(self):
+    def save(self):
         if not self.settings.contains('fileName'):
             self.fileName = QtWidgets.QFileDialog.getSaveFileName(self,
                                                          "Выберите файл", self.fileName,
-                                                         "Excel (*.xlsx)")[0]
+                                                         "Файл (*.bin)")[0]
             self.settings.setValue('fileName', self.fileName)
         if self.fileName:
-            model = self.widget.table.model
-            values = []
-            for i in range(0, model.rowCount()):
-                values.append([])
-                for j in range(0, model.columnCount()):
-                    try:
-                        values[i].append(model.item(i, j).text())
-                    except:
-                        values[i].append("")
-            df = pd.DataFrame(values)
-            df.to_excel(self.fileName, index=False, header=False)
+            self.settings.setValue('fileName', self.fileName)
+            print(self.fileName)
+            file = open(self.fileName, "wb")
+            pickle.dump(self.widget.table.model_for_save, file)
+            file.close()
 
-    def read_from_excel(self):
+    def read(self):
         self.fileName = QtWidgets.QFileDialog.getOpenFileName(self,
                                                          "Выберите файл", self.fileName,
-                                                         "Excel (*.xlsx)")[0]
+                                                         "Файл (*.bin)")[0]
         if self.fileName:
             self.settings.setValue('fileName', self.fileName)
-            model = self.widget.table.model
-            df = pd.read_excel(self.fileName, index_col=None, header=None)
+            file = open(self.fileName, "rb")
+            model_for_save = pickle.load(file)
+            #for i in range(self.widget.table.model_for_save.rowCount):
+                #for j in range(self.widget.table.model_for_save.columnCount):
+                    #self.mod
+            print(model_for_save.model)
+            file.close()
 
-            for i in range(df.shape[0]):
-                for j in range(df.shape[1]):
-                    item = QtGui.QStandardItem(str(df[j][i]))
-                    if item.text() != 'nan':
-                        item.setTextAlignment(QtCore.Qt.AlignCenter)
-                        model.setItem(i, j, item)
-            for i in range(model.rowCount()):
-                self.widget.table.view.resizeRowToContents(i)
-
-    def save_to_excel_as(self):
+    def save_as(self):
         self.fileName = QtWidgets.QFileDialog.getSaveFileName(self,
                                                               "Выберите файл", self.fileName,
-                                                              "Excel (*.xlsx)")[0]
+                                                              "Файл (*.bin)")[0]
         if self.fileName:
             self.settings.setValue('fileName', self.fileName)
-            model = self.widget.table.model
-            '''
-            values = []
-            for i in range(0, model.rowCount()):
-                values.append([])
-                for j in range(0, model.columnCount()):
-                    try:
-                        values[i].append(model.item(i, j).text())
-                    except:
-                        values[i].append("")
-            df = pd.DataFrame(values)
-            df.to_excel(self.fileName, index=False, header=False)
-            '''
-
-
+            print(self.fileName)
+            file = open(self.fileName, "wb")
+            pickle.dump(self.widget.table.model_for_save, file)
+            file.close()
