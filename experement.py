@@ -1,33 +1,55 @@
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets
 import sys
-import os
+
 
 class MyDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self, parent)
         self.setWindowTitle("Диалоговое окно")
         self.resize(200, 70)
-        self.mainBox = QtWidgets.QVBoxLayout()
-        self.buttons = []
 
-        for entry in os.scandir('icons'):
-            self.buttons.append(QtWidgets.QPushButton(icon= QtGui.QIcon(entry.path)))
-        for i in range(len(self.buttons)):
-            try:
-                self.buttons[i].clicked.connect(lambda: self.ChooseIcon(i))
-            except: print(sys.exc_info())
-            self.mainBox.addWidget(self.buttons[i])
+        self.mainBox = QtWidgets.QVBoxLayout()
+
+        self.lineEdit = QtWidgets.QLineEdit()
+        self.mainBox.addWidget(self.lineEdit)
+
+        self.hbox = QtWidgets.QHBoxLayout()
+        self.btnOK = QtWidgets.QPushButton("&OK")
+        self.btnCancel = QtWidgets.QPushButton("&Cancel")
+        self.btnCancel.setDefault(True)
+        self.btnOK.clicked.connect(self.accept)
+        self.btnCancel.clicked.connect(self.reject)
+        self.hbox.addWidget(self.btnOK)
+        self.hbox.addWidget(self.btnCancel)
+        self.mainBox.addLayout(self.hbox)
 
         self.setLayout(self.mainBox)
 
-    def ChooseIcon(self, i):
-        print(i)
+
+def on_accepted():
+    print("on_accepted")
+
+
+def on_rejected():
+    print("on_rejected")
+
+
+def on_finished(status):
+    print("on_finished", status)
 
 
 def on_clicked():
     dialog = MyDialog(window)
-    dialog.exec_()
+    dialog.accepted.connect(on_accepted)
+    dialog.rejected.connect(on_rejected)
+    dialog.finished[int].connect(on_finished)
+    result = dialog.exec_()
+    if result == QtWidgets.QDialog.Accepted:
+        print(dialog.lineEdit.text())
+    else:
+        print("Нажата кнопка Cancel, кнопка Закрыть или клавиша <Esc>",
+              result)
 
 
 app = QtWidgets.QApplication(sys.argv)

@@ -16,8 +16,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent, flags=QtCore.Qt.Window)
 
-
-
         self.printer = QtPrintSupport.QPrinter()
         self.widget = Widget()
         self.setCentralWidget(self.widget)
