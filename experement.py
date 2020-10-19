@@ -1,16 +1,46 @@
-import pickle
-'''
-obj1 = ["Строка", (2, 3)]
-obj2 = (1, 2)
-f = open(r"file.txt", "wb")
-pickle.dump(obj1, f) # Сохраняем первый объект
-pickle.dump(obj2, f) # Сохраняем второй объект
-f.close()
+# -*- coding: utf-8 -*-
+from PyQt5 import QtWidgets, QtGui
+import sys
+import os
 
-f = open(r"file.txt", "rb")
-obj1 = pickle.load(f) # Восстанавливаем первый объект
-obj2 = pickle.load(f) # Восстанавливаем второй объект
-print(obj1, obj2)
+class MyDialog(QtWidgets.QDialog):
+    def __init__(self, parent=None):
+        QtWidgets.QDialog.__init__(self, parent)
+        self.setWindowTitle("Диалоговое окно")
+        self.resize(200, 70)
+        self.mainBox = QtWidgets.QVBoxLayout()
+        self.buttons = []
 
-f.close()
-'''
+        for entry in os.scandir('icons'):
+            self.buttons.append(QtWidgets.QPushButton(icon= QtGui.QIcon(entry.path)))
+        for i in range(len(self.buttons)):
+            try:
+                self.buttons[i].clicked.connect(lambda: self.ChooseIcon(i))
+            except: print(sys.exc_info())
+            self.mainBox.addWidget(self.buttons[i])
+
+        self.setLayout(self.mainBox)
+
+    def ChooseIcon(self, i):
+        print(i)
+
+
+def on_clicked():
+    dialog = MyDialog(window)
+    dialog.exec_()
+
+
+app = QtWidgets.QApplication(sys.argv)
+window = QtWidgets.QWidget()
+window.setWindowTitle("Класс QDialog")
+window.resize(300, 70)
+
+button = QtWidgets.QPushButton("Отобразить диалоговое окно...")
+button.clicked.connect(on_clicked)
+
+box = QtWidgets.QVBoxLayout()
+box.addWidget(button)
+window.setLayout(box)
+
+window.show()
+sys.exit(app.exec_())

@@ -15,6 +15,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent, flags=QtCore.Qt.Window)
+
+
+
         self.printer = QtPrintSupport.QPrinter()
         self.widget = Widget()
         self.setCentralWidget(self.widget)
@@ -55,8 +58,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # второе меню=========================================================
         myMenuEdit = menuBar.addMenu('&Редактировать')
-        action = myMenuEdit.addAction("&Объединить", self.widget.span_cells)
-        action.setStatusTip("Объединить выбранные ячейки")
+        action = myMenuEdit.addAction("&Объединить/разделить", self.widget.span_cells)
+        action.setStatusTip("Объединить выбранные ячейки. Объединенные ячейки будут разделены.")
 
         # третье меню===============================================
         myMenuModel = menuBar.addMenu("&Модель таблицы")
@@ -87,6 +90,7 @@ class MainWindow(QtWidgets.QMainWindow):
         status_bar.addPermanentWidget(self.label)
         status_bar.addPermanentWidget(self.label1)
 
+    # сохранение информации о таблице в двоичный файл
     def save(self):
         if not self.settings.contains('fileName'):
             self.fileName = QtWidgets.QFileDialog.getSaveFileName(self,
@@ -100,6 +104,7 @@ class MainWindow(QtWidgets.QMainWindow):
             pickle.dump(self.widget.table.model_for_save, file)
             file.close()
 
+    # открытие информации о таблице
     def read(self):
         self.fileName = QtWidgets.QFileDialog.getOpenFileName(self,
                                                          "Выберите файл", self.fileName,
@@ -108,12 +113,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self.settings.setValue('fileName', self.fileName)
             file = open(self.fileName, "rb")
             model_for_save = pickle.load(file)
-            #for i in range(self.widget.table.model_for_save.rowCount):
-                #for j in range(self.widget.table.model_for_save.columnCount):
-                    #self.mod
-            print(model_for_save.model)
             file.close()
+            self.widget.table.input_opened_model(model_for_save)
 
+    # обязательный выбор файла при сохранении
     def save_as(self):
         self.fileName = QtWidgets.QFileDialog.getSaveFileName(self,
                                                               "Выберите файл", self.fileName,
@@ -124,3 +127,7 @@ class MainWindow(QtWidgets.QMainWindow):
             file = open(self.fileName, "wb")
             pickle.dump(self.widget.table.model_for_save, file)
             file.close()
+
+
+
+
