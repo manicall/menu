@@ -24,7 +24,8 @@ class Widget(QtWidgets.QWidget):
 
     def add_icon(self):
         dialog = MyDialog()
-        dialog.exec_()
+        dialog.move(QtGui.QCursor.pos())
+        dialog.exec()
         row, column = (self.table.view.currentIndex().row(), self.table.view.currentIndex().column())
         self.table.model.setData(self.table.model.index(row, column), QtGui.QIcon(dialog.choosen_path),
                                  role=QtCore.Qt.DecorationRole)
@@ -55,5 +56,6 @@ class Widget(QtWidgets.QWidget):
                                     self.table.view.selectedIndexes()[-1].column()
             rowSpan, columnSpan = last_row - first_row + 1, last_column - first_column + 1
             self.table.view.setSpan(first_row, first_column, rowSpan, columnSpan)
-            self.table.model_for_save.spanned_cells.append(SpannedCells(first_row, first_column, rowSpan, columnSpan))
+            self.table.model_for_save.spanned_cells.append(
+                SpannedCells(first_row, first_column, rowSpan, columnSpan))
 

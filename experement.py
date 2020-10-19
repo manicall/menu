@@ -1,68 +1,71 @@
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 import sys
 
 
-class MyDialog(QtWidgets.QDialog):
+class MyWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
-        QtWidgets.QDialog.__init__(self, parent)
-        self.setWindowTitle("Диалоговое окно")
-        self.resize(200, 70)
-
-        self.mainBox = QtWidgets.QVBoxLayout()
-
-        self.lineEdit = QtWidgets.QLineEdit()
-        self.mainBox.addWidget(self.lineEdit)
-
-        self.hbox = QtWidgets.QHBoxLayout()
-        self.btnOK = QtWidgets.QPushButton("&OK")
-        self.btnCancel = QtWidgets.QPushButton("&Cancel")
-        self.btnCancel.setDefault(True)
-        self.btnOK.clicked.connect(self.accept)
-        self.btnCancel.clicked.connect(self.reject)
-        self.hbox.addWidget(self.btnOK)
-        self.hbox.addWidget(self.btnCancel)
-        self.mainBox.addLayout(self.hbox)
-
-        self.setLayout(self.mainBox)
+        QtWidgets.QWidget.__init__(self, parent)
+        self.label = QtWidgets.QLabel("Содержимое страницы")
+        self.button = QtWidgets.QPushButton("Кнопка")
+        self.box = QtWidgets.QVBoxLayout()
+        self.box.addWidget(self.label)
+        self.box.addWidget(self.button)
+        self.setLayout(self.box)
 
 
-def on_accepted():
-    print("on_accepted")
+class MyWindow(QtWidgets.QMainWindow):
+    def __init__(self, parent=None):
+        QtWidgets.QMainWindow.__init__(self, parent)
+        self.w = MyWidget()
+        self.setCentralWidget(self.w)
+        self.w.button.clicked.connect(self.on_clicked)
+        # self.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        self.setIconSize(QtCore.QSize(32, 32))
+        # self.setAnimated(False)
+        self.add_menu()
+        self.add_tool_bar()
 
+    def add_menu(self):
+        self.menuFile = QtWidgets.QMenu("&File")
+        self.actOpen = QtWidgets.QAction("Open", None)
+        ico = self.style().standardIcon(
+            QtWidgets.QStyle.SP_ComputerIcon)
+        self.actOpen.setIcon(ico)
+        self.actOpen.setShortcut(QtGui.QKeySequence.Open)
+        self.actOpen.triggered.connect(self.on_open)
+        self.menuFile.addAction(self.actOpen)
+        self.menuBar().addMenu(self.menuFile)
 
-def on_rejected():
-    print("on_rejected")
+    def add_tool_bar(self):
+        self.toolBar = QtWidgets.QToolBar("MyToolBar")
+        self.toolBar.addAction(self.actOpen)
+        self.toolBar.setAllowedAreas(QtCore.Qt.AllToolBarAreas)
+        self.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
 
+        self.addToolBarBreak(QtCore.Qt.TopToolBarArea)
 
-def on_finished(status):
-    print("on_finished", status)
+        self.toolBar2 = QtWidgets.QToolBar("MyToolBar2")
+        ico = self.style().standardIcon(
+            QtWidgets.QStyle.SP_DialogCloseButton)
+        self.actQuit = self.toolBar2.addAction(ico, "Quit",
+                                               QtWidgets.qApp.quit)
+        self.actQuit.setShortcut(QtGui.QKeySequence.Quit)
+        self.toolBar2.setAllowedAreas(QtCore.Qt.TopToolBarArea |
+                                      QtCore.Qt.BottomToolBarArea)
+        self.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar2)
 
+    def on_open(self):
+        print("Выбран пункт меню Open")
 
-def on_clicked():
-    dialog = MyDialog(window)
-    dialog.accepted.connect(on_accepted)
-    dialog.rejected.connect(on_rejected)
-    dialog.finished[int].connect(on_finished)
-    result = dialog.exec_()
-    if result == QtWidgets.QDialog.Accepted:
-        print(dialog.lineEdit.text())
-    else:
-        print("Нажата кнопка Cancel, кнопка Закрыть или клавиша <Esc>",
-              result)
+    def on_clicked(self):
+        pass
 
 
 app = QtWidgets.QApplication(sys.argv)
-window = QtWidgets.QWidget()
-window.setWindowTitle("Класс QDialog")
-window.resize(300, 70)
-
-button = QtWidgets.QPushButton("Отобразить диалоговое окно...")
-button.clicked.connect(on_clicked)
-
-box = QtWidgets.QVBoxLayout()
-box.addWidget(button)
-window.setLayout(box)
+window = MyWindow()
+window.setWindowTitle("Класс QToolBar")
+window.resize(500, 350)
 
 window.show()
 sys.exit(app.exec_())

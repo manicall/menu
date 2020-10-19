@@ -49,13 +49,10 @@ class ModelForSave:
         else:
             if myItem.text != '':
                 self.model[row][column].text = myItem.text
-
             if myItem.icon != None:
                 self.model[row][column].icon = myItem.icon
-
             if myItem.font_color != '#000000':
                 self.model[row][column].font_color = myItem.font_color
-
             if myItem.background_color != '#ffffff':
                 self.model[row][column].background_color = myItem.background_color
 
@@ -74,7 +71,6 @@ class Models:
             self.model_for_save.set_item(0, col + 1, myItem(full_date[col]))
         self.model.setItem(0, 0, self.get_item(''))
 
-
     @staticmethod
     def get_item(str):
         item = QtGui.QStandardItem(str)
@@ -82,5 +78,3 @@ class Models:
         item.setEditable(False)
         item.setSelectable(False)
         return item
-
-

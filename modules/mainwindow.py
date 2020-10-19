@@ -3,6 +3,24 @@ from modules.widget import Widget
 from modules.mydate import myDate
 import pickle
 
+colors = [
+'#000000',
+'#808080',
+'#C0C0C0',
+'#FFFFFF',
+'#FF00FF',
+'#800080',
+'#FF0000',
+'#800000',
+'#FFFF00',
+'#808000',
+'#00FF00',
+'#008000',
+'#00FFFF',
+'#008080',
+'#0000FF',
+'#000080'
+]
 
 class MainWindow(QtWidgets.QMainWindow):
     """
@@ -20,6 +38,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.widget)
         self.settings = QtCore.QSettings("max", "menu")
         self.fileName = self.settings.value('fileName')
+        self.current_color_index = None
         menuBar = self.menuBar()
         toolBar = QtWidgets.QToolBar()
         # первое меню=========================================================
@@ -36,6 +55,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_O)
         toolBar.addAction(action)
         action.setStatusTip("Загрузка из файла")
+
         action = myMenuFile.addAction(QtGui.QIcon(r"images/save.png"),
                                       "Со&хранить...", self.save,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_S)
@@ -47,12 +67,11 @@ class MainWindow(QtWidgets.QMainWindow):
         toolBar.addAction(action)
         action.setStatusTip("Выбрать файл для сохранения")
 
-
         myMenuFile.addSeparator()
         action = myMenuFile.addAction("&Выход", QtWidgets.qApp.quit,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
         action.setStatusTip("Завершение работы приложения")
-
+        toolBar.addSeparator()
         # третье меню===============================================
         myMenuModel = menuBar.addMenu("&Модель таблицы")
         action = myMenuModel.addAction("По умолчанию", self.widget.table.show_default_table)
@@ -68,19 +87,30 @@ class MainWindow(QtWidgets.QMainWindow):
         action = myMenuModel.addAction("На семестр", self.widget.table.show_semestr_table)
         action.setStatusTip("Показать таблицу по всему семестру")
 
+        # toolbar_colors==========================================
+        self.buttons = [QtWidgets.QPushButton() for i in range(len(colors))]  # генератор
+        for i in range(len(self.buttons)):
+            self.buttons[i].setFixedSize(22, 20)
+            self.buttons[i].setStyleSheet('background-color:' + colors[i] +  '; margin-left: 2px;')
+            self.buttons[i].clicked.connect(lambda event, index=i: self.choose_color(index))
+            toolBar.addWidget(self.buttons[i])
         toolBar.setMovable(False)
         toolBar.setFloatable(False)
         self.addToolBar(toolBar)
+
+
         # строка состояния=======================================
         myD = myDate()
-        self.label = QtWidgets.QLabel("дней до конца семестра: " + str(myD.days_left) + " ")
-        self.label.setMinimumSize(160, 20)
-        self.label1 = QtWidgets.QLabel("текущая неделя: " + str(myD.this_week) + " ")
+        self.label1 = QtWidgets.QLabel("дней до конца семестра: " + str(myD.days_left) + " ")
         self.label1.setMinimumSize(160, 20)
+        self.label2 = QtWidgets.QLabel("текущая неделя: " + str(myD.this_week) + " ")
+        self.label2.setMinimumSize(160, 20)
         status_bar = self.statusBar()
         status_bar.setSizeGripEnabled(False)
-        status_bar.addPermanentWidget(self.label)
         status_bar.addPermanentWidget(self.label1)
+        status_bar.addPermanentWidget(self.label2)
+
+
 
     # сохранение информации о таблице в двоичный файл
     def save(self):
@@ -120,6 +150,13 @@ class MainWindow(QtWidgets.QMainWindow):
             pickle.dump(self.widget.table.model_for_save, file)
             file.close()
 
+    def choose_color(self, i):
+        if self.current_color_index != None:
+            self.buttons[self.current_color_index].setStyleSheet(
+                'background-color:' + colors[self.current_color_index] + '; margin-left: 2px;')
+        self.current_color_index = i
+        self.buttons[i].setStyleSheet(
+            'background-color:' + colors[i] + '; margin-left: 2px; border: 3px solid DarkSeaGreen;')
 
 
 
