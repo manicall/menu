@@ -1,7 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets, QtPrintSupport
 from modules.widget import Widget
 from modules.mydate import myDate
-import pandas as pd
 import pickle
 
 
@@ -53,11 +52,6 @@ class MainWindow(QtWidgets.QMainWindow):
         action = myMenuFile.addAction("&Выход", QtWidgets.qApp.quit,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
         action.setStatusTip("Завершение работы приложения")
-
-        # второе меню=========================================================
-        myMenuEdit = menuBar.addMenu('&Редактировать')
-        action = myMenuEdit.addAction("&Объединить/разделить", self.widget.span_cells)
-        action.setStatusTip("Объединить выбранные ячейки. Объединенные ячейки будут разделены.")
 
         # третье меню===============================================
         myMenuModel = menuBar.addMenu("&Модель таблицы")

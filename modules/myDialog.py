@@ -24,7 +24,7 @@ class MyDialog(QtWidgets.QDialog):
         for i in range(len(self.buttons)):
             for j in range(len(self.buttons[i])):
                 self.buttons[i][j].setFixedWidth(25)
-                self.buttons[i][j].clicked.connect(lambda event, i=i+j: self.ChooseIcon(i))
+                self.buttons[i][j].clicked.connect(lambda event, index=i+j: self.ChooseIcon(index))
 
         for i in range(len(self.buttons)):
             for j in range(len(self.buttons[i])):

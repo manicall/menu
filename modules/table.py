@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from modules.mydate import myDate
-from modules.models import Models, myItem
+from modules.models import Models, myItem, SpannedCells
 import datetime as dt
 import calendar
 # размеры полной таблицы
@@ -11,12 +11,12 @@ class Table:
         self.myD = myDate()
         self.model = Models().model
         self.model_for_save = Models().model_for_save
-        self.model.dataChanged.connect(self.table_changed)
+        self.model.dataChanged.connect(self.onChange)
         self.view = QtWidgets.QTableView()
         self.view.setModel(self.model)
         self.show_default_table()
         self.view.resizeRowToContents(0)
-        self.model.dataChanged.connect(self.onChange)
+
 
     #расписание на текущую неделю
     def show_default_table(self):
@@ -88,38 +88,37 @@ class Table:
                 answer = (i + self.myD.first_date.month, answer[1])
         return answer
 
-    # автоподгон ячеек под размеры слов
-    def table_changed(self):
-        self.view.resizeRowToContents(self.view.currentIndex().row())
-
-
     #если меняется содержимое ячейки
     def onChange(self):
         import  sys
-
-
         row, column = self.view.currentIndex().row(), self.view.currentIndex().column()
-        try:
-            self.model_for_save.set_item(row, column, myItem(self.model.item(row, column).text()))
-            print(self.model_for_save.model[row][column].text)
-        except: print(sys.exc_info(), row, column)
+        if row != -1:
+            self.view.resizeRowToContents(row)
+            try:
+                if self.model_for_save.model[row][column] != None:
+                    self.model_for_save.model[row][column].text = self.model.item(row, column).text()
+                else: self.model_for_save.set_item(row, column, myItem(self.model.item(row, column).text()))
+            except: print(sys.exc_info(), row, column)
+            print(row, column, self.model_for_save.model[row][column].text)
 
 
     # изменение отображаемой таблицы в соответствии с информацией
     # хранящейся в двоичных файлах
-    def input_opened_model(self, model_for_save):
+    def input_opened_model(self, opened_model):
         # устанавливает объединения
-        for i in model_for_save.spanned_cells:
-            self.widget.table.view.setSpan(i.row, i.column, i.rowSpan, i.columnSpan)
-            print(i.row, i.column, i.rowSpan, i.columnSpan)
+        for i in opened_model.spanned_cells:
+            self.model_for_save.spanned_cells.append(SpannedCells(i.row, i.column, i.rowSpan, i.columnSpan))
+            self.view.setSpan(i.row, i.column, i.rowSpan, i.columnSpan)
+
         # устанавливает атрибуты ячеек
-            for i in range(len(model_for_save.model)):
-                for j in range(len(model_for_save.model[i])):
-                    if model_for_save.model[i][j] != None:
-                        self.model.item(i, j).setText(model_for_save.model[i][j].text)
-
-
-
-
+        for i in range(len(opened_model.model)):
+            for j in range(len(opened_model.model[i])):
+                if opened_model.model[i][j] != None:
+                    self.model.setData(self.model.index(i, j),
+                                       QtGui.QIcon(opened_model.model[i][j].icon),
+                                       role=QtCore.Qt.DecorationRole)
+                    self.model.item(i, j).setText(opened_model.model[i][j].text)
+                    # TODO: добавить сохраниения цвета фона и цвета шрифта
+                    self.model_for_save.set_item(i, j, opened_model.model[i][j])
 
 

@@ -1,14 +1,13 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from modules.mydate import myDate
-import pickle
 
 '''
 хранит информацию хранящуюся в ячейке
 '''
 class myItem:
-    def __init__(self, text='', image=None, font_color='#000000', background_color='#ffffff'):
+    def __init__(self, text='', icon=None, font_color='#000000', background_color='#ffffff'):
         self.text = text
-        self.image = image
+        self.icon = icon
         self.font_color = font_color
         self.background_color = background_color
 
@@ -44,8 +43,21 @@ class ModelForSave:
                 self.model[i].append(None)
 
     def set_item(self, row, column, myItem):
-        self.model[row].pop(column)
-        self.model[row].insert(column, myItem)
+        if self.model[row][column] == None:
+            self.model[row].pop(column)
+            self.model[row].insert(column, myItem)
+        else:
+            if myItem.text != '':
+                self.model[row][column].text = myItem.text
+
+            if myItem.icon != None:
+                self.model[row][column].icon = myItem.icon
+
+            if myItem.font_color != '#000000':
+                self.model[row][column].font_color = myItem.font_color
+
+            if myItem.background_color != '#ffffff':
+                self.model[row][column].background_color = myItem.background_color
 
 '''
 Модель для отображения таблицы, которую видит пользователь.

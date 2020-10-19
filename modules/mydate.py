@@ -6,7 +6,7 @@ class myDate:
     def __init__(self):
         locale.setlocale(locale.LC_ALL, "Russian_Russia.1251")
         self.WEEK = 7
-        #зависят от семестра
+        # зависят от семестра
         self.first_date = dt.date(dt.date.today().year, 9, 1)
         self.last_date = dt.date(dt.date.today().year, 12, 21)
         #===================
