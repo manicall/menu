@@ -56,6 +56,11 @@ class ModelForSave:
             if myItem.background_color != '#ffffff':
                 self.model[row][column].background_color = myItem.background_color
 
+    #def Clear(self):
+
+
+
+
 '''
 Модель для отображения таблицы, которую видит пользователь.
 '''
@@ -65,7 +70,6 @@ class Models:
         full_date = self.myD.model_dates()
         self.model_for_save = ModelForSave(50, self.myD.total_days + 1)
         self.model = QtGui.QStandardItemModel(50, self.myD.total_days + 1)
-
         for col in range(self.myD.total_days):
             self.model.setItem(0, col + 1, self.get_item(full_date[col]))
             self.model_for_save.set_item(0, col + 1, myItem(full_date[col]))

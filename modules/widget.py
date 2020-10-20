@@ -36,17 +36,6 @@ class Widget(QtWidgets.QWidget):
         self.table.model.setData(self.table.model.index(row, column), None, role=QtCore.Qt.DecorationRole)
         self.table.model_for_save.set_item(row, column, myItem(icon=None))
 
-
-    # очистка ячеек
-    def clear_all_cells(self):
-        self.table.model.clear()
-        self.table.model = Models().model
-        self.table.model.dataChanged.connect(self.table.onChange)
-        self.table.view.setModel(self.table.model)
-        self.table.view.resizeRowToContents(0)
-        self.table.show_default_table()
-        self.table.view.clearSpans()
-
     # объединение ячеек
     def span_cells(self):
         first_row, first_column = self.table.view.selectedIndexes()[0].row(), \

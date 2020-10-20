@@ -44,7 +44,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # первое меню=========================================================
         myMenuFile = menuBar.addMenu("&Файл")
         action = myMenuFile.addAction(QtGui.QIcon(r"images/new.png"),
-                                      "&Новый", self.widget.clear_all_cells,
+                                      "&Новый", self.clear_all_cells,
                                       QtCore.Qt.CTRL + QtCore.Qt.Key_N
                                       )
         toolBar.addAction(action)
@@ -157,6 +157,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.current_color_index = i
         self.buttons[i].setStyleSheet(
             'background-color:' + colors[i] + '; margin-left: 2px; border: 2px solid DarkSeaGreen;')
+
+    def clear_all_cells(self):
+        self.widget = Widget()
+        self.setCentralWidget(self.widget)
 
 
 
