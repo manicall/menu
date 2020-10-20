@@ -156,7 +156,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 'background-color:' + colors[self.current_color_index] + '; margin-left: 2px;')
         self.current_color_index = i
         self.buttons[i].setStyleSheet(
-            'background-color:' + colors[i] + '; margin-left: 2px; border: 3px solid DarkSeaGreen;')
+            'background-color:' + colors[i] + '; margin-left: 2px; border: 2px solid DarkSeaGreen;')
 
 
 
