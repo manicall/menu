@@ -1,26 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets, QtPrintSupport
-from modules.widget import Widget
+from modules.widget import Widget, colors
 from modules.mydate import myDate
 import pickle
 
-colors = [
-'#000000',
-'#808080',
-'#C0C0C0',
-'#FFFFFF',
-'#FF00FF',
-'#800080',
-'#FF0000',
-'#800000',
-'#FFFF00',
-'#808000',
-'#00FF00',
-'#008000',
-'#00FFFF',
-'#008080',
-'#0000FF',
-'#000080'
-]
 
 class MainWindow(QtWidgets.QMainWindow):
     """
@@ -38,7 +20,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.widget)
         self.settings = QtCore.QSettings("max", "menu")
         self.fileName = self.settings.value('fileName')
-        self.current_color_index = None
         menuBar = self.menuBar()
         toolBar = QtWidgets.QToolBar()
         # первое меню=========================================================
@@ -91,13 +72,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.buttons = [QtWidgets.QPushButton() for i in range(len(colors))]  # генератор
         for i in range(len(self.buttons)):
             self.buttons[i].setFixedSize(22, 20)
-            self.buttons[i].setStyleSheet('background-color:' + colors[i] +  '; margin-left: 2px;')
+            self.buttons[i].setStyleSheet('background-color:' + colors[i] + '; margin-left: 2px;')
             self.buttons[i].clicked.connect(lambda event, index=i: self.choose_color(index))
             toolBar.addWidget(self.buttons[i])
         toolBar.setMovable(False)
         toolBar.setFloatable(False)
         self.addToolBar(toolBar)
-
 
         # строка состояния=======================================
         myD = myDate()
@@ -110,14 +90,12 @@ class MainWindow(QtWidgets.QMainWindow):
         status_bar.addPermanentWidget(self.label1)
         status_bar.addPermanentWidget(self.label2)
 
-
-
     # сохранение информации о таблице в двоичный файл
     def save(self):
         if not self.settings.contains('fileName'):
             self.fileName = QtWidgets.QFileDialog.getSaveFileName(self,
-                                                         "Выберите файл", self.fileName,
-                                                         "Файл (*.bin)")[0]
+                                                                  "Выберите файл", self.fileName,
+                                                                  "Файл (*.bin)")[0]
             self.settings.setValue('fileName', self.fileName)
         if self.fileName:
             self.settings.setValue('fileName', self.fileName)
@@ -129,8 +107,8 @@ class MainWindow(QtWidgets.QMainWindow):
     # открытие информации о таблице
     def read(self):
         self.fileName = QtWidgets.QFileDialog.getOpenFileName(self,
-                                                         "Выберите файл", self.fileName,
-                                                         "Файл (*.bin)")[0]
+                                                              "Выберите файл", self.fileName,
+                                                              "Файл (*.bin)")[0]
         if self.fileName:
             self.settings.setValue('fileName', self.fileName)
             file = open(self.fileName, "rb")
@@ -151,16 +129,16 @@ class MainWindow(QtWidgets.QMainWindow):
             file.close()
 
     def choose_color(self, i):
-        if self.current_color_index != None:
-            self.buttons[self.current_color_index].setStyleSheet(
-                'background-color:' + colors[self.current_color_index] + '; margin-left: 2px;')
-        self.current_color_index = i
+        if self.widget.current_color_index is not None:
+            self.buttons[self.widget.current_color_index].setStyleSheet(
+                'background-color:' + colors[self.widget.current_color_index] + '; margin-left: 2px;')
+            if self.widget.current_color_index == i:
+                self.widget.current_color_index = None
+                return  # чтобы удалить выбранный цвет
         self.buttons[i].setStyleSheet(
             'background-color:' + colors[i] + '; margin-left: 2px; border: 2px solid DarkSeaGreen;')
+        self.widget.current_color_index = i
 
     def clear_all_cells(self):
         self.widget = Widget()
         self.setCentralWidget(self.widget)
-
-
-

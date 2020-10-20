@@ -17,7 +17,6 @@ class Table:
         self.show_default_table()
         self.view.resizeRowToContents(0)
 
-
     #расписание на текущую неделю
     def show_default_table(self):
         self.showAllColumns()
@@ -99,8 +98,7 @@ class Table:
                     self.model_for_save.model[row][column].text = self.model.item(row, column).text()
                 else: self.model_for_save.set_item(row, column, myItem(self.model.item(row, column).text()))
             except: print(sys.exc_info(), row, column)
-            print(row, column, self.model_for_save.model[row][column].text)
-
+            #print(row, column, self.model_for_save.model[row][column].text)
 
     # изменение отображаемой таблицы в соответствии с информацией
     # хранящейся в двоичных файлах
@@ -114,11 +112,17 @@ class Table:
         for i in range(len(opened_model.model)):
             for j in range(len(opened_model.model[i])):
                 if opened_model.model[i][j] != None:
+                    # установка иконки
                     self.model.setData(self.model.index(i, j),
                                        QtGui.QIcon(opened_model.model[i][j].icon),
                                        role=QtCore.Qt.DecorationRole)
+                    # установка текста
                     self.model.item(i, j).setText(opened_model.model[i][j].text)
-                    # TODO: добавить сохраниения цвета фона и цвета шрифта
+                    # установка цвета ячейки
+                    self.model.item(i, j).setBackground(
+                        QtGui.QBrush(QtGui.QColor(opened_model.model[i][j].background_color)))
+                    # установка цвета шрифта
+                    self.model.item(i, j).setForeground(
+                        QtGui.QBrush(QtGui.QColor(opened_model.model[i][j].font_color)))
+                    # сохранение атрибутов в модели для сохранения
                     self.model_for_save.set_item(i, j, opened_model.model[i][j])
-
-
