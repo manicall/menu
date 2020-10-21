@@ -2,31 +2,30 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from modules.table import Table
 from modules.models import myItem, SpannedCells
 from modules.myDialog import MyDialog
+import sys
 
 colors = [
-'#000000',
-'#808080',
-'#C0C0C0',
-'#FFFFFF',
-'#FF00FF',
-'#800080',
-'#FF0000',
-'#800000',
-'#FFFF00',
-'#808000',
-'#00FF00',
-'#008000',
-'#00FFFF',
-'#008080',
-'#0000FF',
-'#000080'
+    '#000000',
+    '#808080',
+    '#C0C0C0',
+    '#FFFFFF',
+    '#FF00FF',
+    '#800080',
+    '#FF0000',
+    '#800000',
+    '#FFFF00',
+    '#808000',
+    '#00FF00',
+    '#008000',
+    '#00FFFF',
+    '#008080',
+    '#0000FF',
+    '#000080'
 ]
-
 
 class Widget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
-        self.current_color_index = None
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.table = Table()
         vBoxMain = QtWidgets.QVBoxLayout()
@@ -39,16 +38,12 @@ class Widget(QtWidgets.QWidget):
         acts.append(QtWidgets.QAction('Объединить/разделить', self))
         acts.append(QtWidgets.QAction("Вставить иконку", self))
         acts.append(QtWidgets.QAction("Удалить иконку", self))
-        acts.append(QtWidgets.QAction("Установить цвет ячейки", self))
-        acts.append(QtWidgets.QAction("Установить цвет шрифта", self))
         # функции
         funcs = []
         funcs.append(self.span_cells)
         funcs.append(self.add_icon)
         funcs.append(self.delete_icon)
-        funcs.append(self.set_cell_color)
-        funcs.append(self.set_font_color)
-        # соединить функцию и действия =
+        # соединить функцию и действия
         for i in range(len(acts)):
             acts[i].triggered.connect(funcs[i])
         # вызвать меню
@@ -61,40 +56,56 @@ class Widget(QtWidgets.QWidget):
         row, column = (self.table.view.currentIndex().row(), self.table.view.currentIndex().column())
         self.table.model.setData(self.table.model.index(row, column), QtGui.QIcon(dialog.choosen_path),
                                  role=QtCore.Qt.DecorationRole)
+        # запоминает изменения
         self.table.model_for_save.set_item(row, column, myItem(icon=dialog.choosen_path))
 
     def delete_icon(self):
         row, column = (self.table.view.currentIndex().row(), self.table.view.currentIndex().column())
         self.table.model.setData(self.table.model.index(row, column), None, role=QtCore.Qt.DecorationRole)
+        # запоминает изменения
         self.table.model_for_save.set_item(row, column, myItem(icon=None))
 
     # объединение ячеек
     def span_cells(self):
-        first_row, first_column = self.table.view.selectedIndexes()[0].row(), \
-                                  self.table.view.selectedIndexes()[0].column()
-        if first_column > 0:
-            last_row, last_column = self.table.view.selectedIndexes()[-1].row(), \
-                                    self.table.view.selectedIndexes()[-1].column()
-            rowSpan, columnSpan = last_row - first_row + 1, last_column - first_column + 1
-            self.table.view.setSpan(first_row, first_column, rowSpan, columnSpan)
+        span = self.get_span()
+        if span.column > 0:
+            self.table.view.setSpan(span.row, span.column, span.rowSpan, span.columnSpan)
+            # запоминает изменения
             self.table.model_for_save.spanned_cells.append(
-                SpannedCells(first_row, first_column, rowSpan, columnSpan))
+                SpannedCells(span.row, span.column, span.rowSpan, span.columnSpan))
 
-    def set_cell_color(self):
-        if self.current_color_index is not None:
-            row, column = self.table.view.currentIndex().row(), self.table.view.currentIndex().column()
-            self.table.model.item(row, column).setBackground(QtGui.QBrush(QtGui.QColor(colors[self.current_color_index])))
-            if self.table.model_for_save.model[row][column] is not None:
-                self.table.model_for_save.model[row][column].background_color = colors[self.current_color_index]
-            else:
-                self.table.model_for_save.set_item(background_color=colors[self.current_color_index])
+    def set_cell_color(self, index):
+        current_color_index = index
+        span = self.get_span()
+        for i in range(span.row, span.row + span.rowSpan):
+            for j in range(span.column, span.column + span.columnSpan):
+                self.table.model.item(i, j).setBackground(
+                    QtGui.QBrush(QtGui.QColor(colors[current_color_index])))  # устанавливает цвет фона
+                # запоминает изменения
+                if self.table.model_for_save.model[i][j] is not None:
+                    self.table.model_for_save.model[i][j].background_color = colors[current_color_index]
+                else:
+                    self.table.model_for_save.set_item(i, j, myItem(background_color=colors[current_color_index]))
 
-    def set_font_color(self):
-        if self.current_color_index is not None:
-            row, column = self.table.view.currentIndex().row(), self.table.view.currentIndex().column()
-            self.table.model.item(row, column).setForeground(
-                QtGui.QBrush(QtGui.QColor(colors[self.current_color_index])))
-            if self.table.model_for_save.model[row][column] is not None:
-                self.table.model_for_save.model[row][column].font_color = colors[self.current_color_index]
-            else:
-                self.table.model_for_save.set_item(font_color=colors[self.current_color_index])
+    def set_font_color(self, index):
+        current_color_index = index
+        span = self.get_span()
+        for i in range(span.row, span.row + span.rowSpan):
+            for j in range(span.column, span.column + span.columnSpan):
+                self.table.model.item(i, j).setForeground(
+                    QtGui.QBrush(QtGui.QColor(colors[current_color_index]))) # устанавливает цвет шрифта
+                # запоминает изменения
+                if self.table.model_for_save.model[i][j] is not None:
+                    self.table.model_for_save.model[i][j].font_color = colors[current_color_index]
+                else:
+                    self.table.model_for_save.set_item(i, j, myItem(font_color=colors[current_color_index]))
+
+    # получить интервал выбранных ячеек
+    def get_span(self):
+        first_row = self.table.view.selectedIndexes()[0].row()
+        first_column = self.table.view.selectedIndexes()[0].column()
+        last_row = self.table.view.selectedIndexes()[-1].row()
+        last_column = self.table.view.selectedIndexes()[-1].column()
+        rowSpan = last_row - first_row + 1              # количество выбранных строк
+        columnSpan = last_column - first_column + 1     # количество выбранных столбцов
+        return SpannedCells(first_row, first_column, rowSpan, columnSpan)

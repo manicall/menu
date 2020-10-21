@@ -3,7 +3,7 @@ from modules.mydate import myDate
 from modules.models import Models, myItem, SpannedCells
 import datetime as dt
 import calendar
-# размеры полной таблицы
+import sys
 
 
 class Table:
@@ -47,7 +47,7 @@ class Table:
                 self.view.hideColumn(i)
                 i+=1
             i += month[1]
-            while (i != self.myD.total_days + 1):
+            while (i <= self.myD.total_days + 1):
                 self.view.hideColumn(i)
                 i+=1
 
@@ -75,9 +75,7 @@ class Table:
 
     # выбор месяца
     def choose_month(self):
-        months = []
-        for i in range(self.myD.first_date.month, self.myD.last_date.month + 1):
-            months.append(calendar.month_name[i])
+        months = [calendar.month_name[i] for i in range(self.myD.first_date.month, self.myD.last_date.month + 1)]
         answer = QtWidgets.QInputDialog.getItem(None, "Выбор недели",
                                                 "Выбрать неделю", months,
                                                 current=dt.date.today().month - self.myD.first_date.month,
@@ -87,9 +85,8 @@ class Table:
                 answer = (i + self.myD.first_date.month, answer[1])
         return answer
 
-    #если меняется содержимое ячейки
+    # если меняется содержимое ячейки
     def onChange(self):
-        import  sys
         row, column = self.view.currentIndex().row(), self.view.currentIndex().column()
         if row != -1:
             self.view.resizeRowToContents(row)
@@ -126,3 +123,6 @@ class Table:
                         QtGui.QBrush(QtGui.QColor(opened_model.model[i][j].font_color)))
                     # сохранение атрибутов в модели для сохранения
                     self.model_for_save.set_item(i, j, opened_model.model[i][j])
+
+        for i in range(self.model.rowCount()):
+            self.view.resizeRowToContents(i)

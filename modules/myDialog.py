@@ -13,6 +13,7 @@ class MyDialog(QtWidgets.QDialog):
         self.choosen_path = None
         i = 0
         j = 0
+        # заполняет список кнопками с иконками
         for entry in os.scandir('icons'):
             if j == 7:
                 self.buttons.append([])
@@ -21,16 +22,17 @@ class MyDialog(QtWidgets.QDialog):
             self.buttons[i].append(QtWidgets.QPushButton(icon=QtGui.QIcon(entry.path)))
             self.paths.append(entry.path)
             j += 1
+        # изменяет размеры кнопок и соединяет с обрабатывающей функцией
         for i in range(len(self.buttons)):
             for j in range(len(self.buttons[i])):
                 self.buttons[i][j].setFixedWidth(25)
                 self.buttons[i][j].clicked.connect(lambda event, index=i+j: self.ChooseIcon(index))
-
+        # добавляет кнопки в слой
         for i in range(len(self.buttons)):
             for j in range(len(self.buttons[i])):
                 self.grid.addWidget(self.buttons[i][j], i, j)
         self.setLayout(self.grid)
 
     def ChooseIcon(self, i):
-        self.choosen_path = self.paths[i]
+        self.choosen_path = self.paths[i]  # запомнить выбор иконки
         self.close()
