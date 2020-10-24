@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from modules.mydate import myDate
-from modules.models import Models, myItem, SpannedCells
+from modules.models import Models
+from modules.ForSave.ForSave import myItem, SpannedCells
 import datetime as dt
 import calendar
 import sys
@@ -8,21 +9,26 @@ import sys
 
 class Table:
     def __init__(self):
+        self.changed = False
         self.myD = myDate()
         self.model = Models().model
-        self.model_for_save = Models().model_for_save
+        self.for_save = Models().for_save
         self.model.dataChanged.connect(self.onChange)
         self.view = QtWidgets.QTableView()
         self.view.setModel(self.model)
-        self.show_default_table()
+        self.this_week()
+        for i in range(self.model.columnCount()):
+            self.view.setColumnWidth(i, 150)
         self.view.resizeRowToContents(0)
 
-    #расписание на текущую неделю
-    def show_default_table(self):
+
+    def this_week(self):
         self.showAllColumns()
-        self.hideColumns(1, self.myD.days_past)
-        self.hideColumns(self.myD.days_past + self.myD.WEEK + 1,
-                         self.myD.days_left - self.myD.WEEK)
+        number_of_week = int(self.myD.this_week) - 1
+        weeks_before_last_date = self.myD.total_weeks - number_of_week
+        self.showAllColumns()
+        self.hideColumns(1, number_of_week * self.myD.WEEK - 1)
+        self.hideColumns((number_of_week + 1) * self.myD.WEEK, (weeks_before_last_date - 1) * self.myD.WEEK)
 
     #расписание на выбранную неделю
     def show_week_table(self):
@@ -87,27 +93,29 @@ class Table:
 
     # если меняется содержимое ячейки
     def onChange(self):
+        self.changed = True
         row, column = self.view.currentIndex().row(), self.view.currentIndex().column()
         if row != -1:
             self.view.resizeRowToContents(row)
             try:
-                if self.model_for_save.model[row][column] != None:
-                    self.model_for_save.model[row][column].text = self.model.item(row, column).text()
-                else: self.model_for_save.set_item(row, column, myItem(self.model.item(row, column).text()))
+                if self.for_save.model[row][column] != None:
+                    self.for_save.model[row][column].text = self.model.item(row, column).text()
+                else:
+                    self.for_save.set_item(row, column, myItem(self.model.item(row, column).text()))
             except: print(sys.exc_info(), row, column)
-            #print(row, column, self.model_for_save.model[row][column].text)
+        self.view.resizeRowsToContents()
+
 
     # изменение отображаемой таблицы в соответствии с информацией
     # хранящейся в двоичных файлах
     def input_opened_model(self, opened_model):
         # устанавливает объединения
         for i in opened_model.spanned_cells:
-            self.model_for_save.spanned_cells.append(SpannedCells(i.row, i.column, i.rowSpan, i.columnSpan))
+            self.for_save.spanned_cells.append(SpannedCells(i.row, i.column, i.rowSpan, i.columnSpan))
             self.view.setSpan(i.row, i.column, i.rowSpan, i.columnSpan)
-
         # устанавливает атрибуты ячеек
-        for i in range(len(opened_model.model)):
-            for j in range(len(opened_model.model[i])):
+        for i in range(opened_model.rowCount):
+            for j in range(opened_model.columnCount):
                 if opened_model.model[i][j] != None:
                     # установка иконки
                     self.model.setData(self.model.index(i, j),
@@ -122,7 +130,5 @@ class Table:
                     self.model.item(i, j).setForeground(
                         QtGui.QBrush(QtGui.QColor(opened_model.model[i][j].font_color)))
                     # сохранение атрибутов в модели для сохранения
-                    self.model_for_save.set_item(i, j, opened_model.model[i][j])
-
-        for i in range(self.model.rowCount()):
-            self.view.resizeRowToContents(i)
+                    self.for_save.set_item(i, j, opened_model.model[i][j])
+        self.view.resizeRowsToContents()

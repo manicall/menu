@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets, QtCore
 import datetime as dt
 import calendar
 import locale
-from modules.dialogdate import DialogDate
+from modules.DialogDate import DialogDate
 
 class myDate:
     def __init__(self):

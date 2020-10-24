@@ -12,7 +12,6 @@ class DialogDate(QtWidgets.QDialog):
         self.resize(250, 70)
 
         # dataTimeEdit=======================================
-        #dt = datetime.datetime.today()\
         delta = dt.timedelta(days=365)
         dt_min = dt.date(dt.date.today().year, 1, 1)
         dt_max = dt.date(dt.date.today().year, 12, 31)
