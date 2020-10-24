@@ -57,13 +57,13 @@ class Widget(QtWidgets.QWidget):
         self.table.model.setData(self.table.model.index(row, column), QtGui.QIcon(dialog.choosen_path),
                                  role=QtCore.Qt.DecorationRole)
         # запоминает изменения
-        self.table.for_save.set_item(row, column, myItem(icon=dialog.choosen_path))
+        self.table.for_save.model.set_item(row, column, myItem(icon=dialog.choosen_path))
 
     def delete_icon(self):
         row, column = (self.table.view.currentIndex().row(), self.table.view.currentIndex().column())
         self.table.model.setData(self.table.model.index(row, column), None, role=QtCore.Qt.DecorationRole)
         # запоминает изменения
-        self.table.for_save.set_item(row, column, myItem(icon=None))
+        self.table.for_save.model.set_item(row, column, myItem(icon=None))
 
     # объединение ячеек
     def span_cells(self):
@@ -85,7 +85,7 @@ class Widget(QtWidgets.QWidget):
                 if self.table.for_save.model[i][j] is not None:
                     self.table.for_save.model[i][j].background_color = colors[current_color_index]
                 else:
-                    self.table.for_save.set_item(i, j, myItem(background_color=colors[current_color_index]))
+                    self.table.for_save.model.set_item(i, j, myItem(background_color=colors[current_color_index]))
 
     def set_font_color(self, index):
         current_color_index = index
@@ -98,7 +98,7 @@ class Widget(QtWidgets.QWidget):
                 if self.table.for_save.model[i][j] is not None:
                     self.table.for_save.model[i][j].font_color = colors[current_color_index]
                 else:
-                    self.table.for_save.set_item(i, j, myItem(font_color=colors[current_color_index]))
+                    self.table.for_save.model.set_item(i, j, myItem(font_color=colors[current_color_index]))
 
     # получить интервал выбранных ячеек
     def get_span(self):

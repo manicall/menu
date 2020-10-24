@@ -101,34 +101,34 @@ class Table:
                 if self.for_save.model[row][column] != None:
                     self.for_save.model[row][column].text = self.model.item(row, column).text()
                 else:
-                    self.for_save.set_item(row, column, myItem(self.model.item(row, column).text()))
+                    self.for_save.model.set_item(row, column, myItem(self.model.item(row, column).text()))
             except: print(sys.exc_info(), row, column)
         self.view.resizeRowsToContents()
 
-
     # изменение отображаемой таблицы в соответствии с информацией
     # хранящейся в двоичных файлах
-    def input_opened_model(self, opened_model):
+    def input_opened_model(self, from_save):
+        from_save.model.set_size(from_save.model.rowCount, from_save.model.columnCount)
         # устанавливает объединения
-        for i in opened_model.spanned_cells:
+        for i in from_save.spanned_cells:
             self.for_save.spanned_cells.append(SpannedCells(i.row, i.column, i.rowSpan, i.columnSpan))
             self.view.setSpan(i.row, i.column, i.rowSpan, i.columnSpan)
         # устанавливает атрибуты ячеек
-        for i in range(opened_model.rowCount):
-            for j in range(opened_model.columnCount):
-                if opened_model.model[i][j] != None:
+        for i in range(from_save.model.rowCount):
+            for j in range(from_save.model.columnCount):
+                if from_save.model[i][j] != None:
                     # установка иконки
                     self.model.setData(self.model.index(i, j),
-                                       QtGui.QIcon(opened_model.model[i][j].icon),
+                                       QtGui.QIcon(from_save.model[i][j].icon),
                                        role=QtCore.Qt.DecorationRole)
                     # установка текста
-                    self.model.item(i, j).setText(opened_model.model[i][j].text)
+                    self.model.item(i, j).setText(from_save.model[i][j].text)
                     # установка цвета ячейки
                     self.model.item(i, j).setBackground(
-                        QtGui.QBrush(QtGui.QColor(opened_model.model[i][j].background_color)))
+                        QtGui.QBrush(QtGui.QColor(from_save.model[i][j].background_color)))
                     # установка цвета шрифта
                     self.model.item(i, j).setForeground(
-                        QtGui.QBrush(QtGui.QColor(opened_model.model[i][j].font_color)))
+                        QtGui.QBrush(QtGui.QColor(from_save.model[i][j].font_color)))
                     # сохранение атрибутов в модели для сохранения
-                    self.for_save.set_item(i, j, opened_model.model[i][j])
+                    self.for_save.model.set_item(i, j, from_save.model[i][j])
         self.view.resizeRowsToContents()

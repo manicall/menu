@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from modules.mydate import myDate
-from modules.ForSave.ForSave import ForSave, myItem
+from modules.ForSave.ForSave import for_save, myItem
 
 '''
 Модель для отображения таблицы, которую видит пользователь.
@@ -11,12 +11,13 @@ class Models:
         self.myD = myDate()
         full_date = self.myD.model_dates()
         # инициализация
-        self.for_save = ForSave(rows_count, self.myD.total_days + 1)
+        self.for_save = for_save
+        self.for_save.model.set_size(rows_count, self.myD.total_days + 1)
         self.model = QtGui.QStandardItemModel(rows_count, self.myD.total_days + 1)
         # установка даты
         for col in range(self.myD.total_days):
             self.model.setItem(0, col + 1, self.get_item(full_date[col]))
-            self.for_save.set_item(0, col + 1, myItem(full_date[col]))
+            self.for_save.model.set_item(0, col + 1, myItem(full_date[col]))
         # заполнение ячеек пустым текстом, чтобы их можно было закрасить
         for i in range(1, rows_count):
             for j in range(1, self.myD.total_days):

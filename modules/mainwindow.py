@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from modules.widget import Widget, colors
 from modules.mydate import myDate
-from modules.DockWidget import myDockWidget
+from modules.TasksList.DockWidget import myDockWidget
 import webbrowser
 import pickle
 import subprocess
@@ -71,9 +71,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.dwAction = menuBar.addAction("Показать список задач", self.dockWidget_visible_control)
         self.dwAction.setStatusTip("Показать список задач")
 
-        # третье меню===============================================
-        action = menuBar.addAction("Открыть расписание", lambda : webbrowser.open(r'https://knastu.ru/students/schedule?g=8f699737-a4ce-4303-a349-62b3bb90fe06'))
+        # четвертое меню============================================
+        action = menuBar.addAction(
+            "Открыть расписание",
+            lambda : webbrowser.open(r'https://knastu.ru/students/schedule?g=8f699737-a4ce-4303-a349-62b3bb90fe06'))
         action.setStatusTip("Показать список задач")
+
+        menuBar.addAction(
+            "для отладки",
+            self.tree_data_changed
+        )
 
         # toolbar_colors==========================================
         self.buttons = [QtWidgets.QPushButton() for i in range(len(colors))]  # генератор
@@ -101,9 +108,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_bar.setSizeGripEnabled(False)
         self.status_bar.addPermanentWidget(self.label1)
         self.status_bar.addPermanentWidget(self.label2)
-        self.dw = myDockWidget().dw
+        #======================================================
+        self.dw = myDockWidget()
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.dw)
         self.dw.visibilityChanged.connect(self.dockWidget_visibility_changed)
+        self.dw.tree.model.dataChanged.connect(self.tree_data_changed)
+
+    def tree_data_changed(self):
+        row = self.dw.tree.currentIndex().row()
+        print(row)
+
+        parents = [self.dw.tree.model.item(i, 0) for i in range(self.dw.tree.model.rowCount() - 1)]
+        children = []
+        for parent in parents:
+            children.append([parent.child(i,0) for i in range(parent.rowCount() - 1)])
+        iparents = [parent.index for parent in parents]
+        print(row)
+        #print(iparents.)
+        #print('p: ', parents)
+        #print('c: ', children)
+
 
     def dockWidget_visibility_changed(self):
         self.status_bar.clearMessage()
@@ -154,6 +178,7 @@ class MainWindow(QtWidgets.QMainWindow):
             file = open(self.fileName, "wb")
             pickle.dump(self.widget.table.for_save, file)
             file.close()
+            self.widget.table.changed = False
 
     # открытие информации о таблице
     def read(self):
@@ -162,11 +187,11 @@ class MainWindow(QtWidgets.QMainWindow):
                                                               "Файл (*.bin)")[0]
         if self.fileName:
             file = open(self.fileName, "rb")
-            model_for_save = pickle.load(file)
+            from_save = pickle.load(file)
             file.close()
-            if model_for_save.model[0][1].text == self.widget.table.model.item(0,1).text():
+            if from_save.model[0][1].text == self.widget.table.model.item(0,1).text():
                 self.settings.setValue('fileName', self.fileName)
-                self.widget.table.input_opened_model(model_for_save)
+                self.widget.table.input_opened_model(from_save)
             else: QtWidgets.QMessageBox.critical(self, 'ошибка', "Диапазоны дат не совпадают!")
 
     # открыть раннее сохраненный файл
@@ -174,9 +199,9 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.settings.contains('fileName'):
             try:
                 file = open(self.fileName, "rb")
-                for_save = pickle.load(file)
+                from_save = pickle.load(file)
                 file.close()
-                self.widget.table.input_opened_model(for_save)
+                self.widget.table.input_opened_model(from_save)
             except:
                 print('открыть файл с сохранением не удалось')
         self.widget.table.changed = False
@@ -192,6 +217,7 @@ class MainWindow(QtWidgets.QMainWindow):
             file = open(self.fileName, "wb")
             pickle.dump(self.widget.table.for_save, file)
             file.close()
+            self.widget.table.changed = False
 
     # выбор цвета из меню на toolbar
     def choose_color(self, i):
@@ -212,4 +238,3 @@ class MainWindow(QtWidgets.QMainWindow):
         self.close()
         # запуск текущей программы
         subprocess.call(['py']+sys.argv)
-
