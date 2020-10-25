@@ -24,22 +24,12 @@ class TreeView(QtWidgets.QTreeView):
         self.setModel(self.model)
         self.setAnimated(True)
         self.setIndexWidget(self.model.index(0, 0), parent_button)
-        self.expanded.connect(self.onExpanded)
+
 
     def contextMenuEvent(self, event):
-        # действия
-        acts = []
-        acts.append(QtWidgets.QAction('удалить задачу', self))
-        acts.append(QtWidgets.QAction('удалить подзадачу', self))
-        # функции
-        funcs = []
-        funcs.append(self.delete_task)
-        funcs.append(self.delete_subtask)
-        # соединить функцию и действия
-        for i in range(len(acts)):
-            acts[i].triggered.connect(funcs[i])
-        # вызвать меню
-        QtWidgets.QMenu.exec(acts, event.globalPos(), acts[0], self)
+        act = (QtWidgets.QAction('удалить', self))
+        act.triggered.connect(self.delete)
+        QtWidgets.QMenu.exec([act], event.globalPos(), act, self)
 
     def add_task(self, str='...'):
         self.tl.add_task('...')
@@ -63,4 +53,37 @@ class TreeView(QtWidgets.QTreeView):
         child = QtGui.QStandardItem(str)
         child.setCheckable(True)
         self.parents[i].insertRow(0, child)
-        print(self.parents[i])
+
+    def delete(self):
+        ind = self.currentIndex()
+        if ind.isValid():
+            ind_child = ind.child(0, 0)
+            if ind_child.isValid():
+                pass
+                # выбран родитель
+                self.model.removeRow(ind.row())
+                self.tl.pop_task()
+            else:
+                # выбран ребенок
+                self.model.item(ind.parent().row(), 0).removeRow(0)
+                self.tl.pop_subtask()
+
+    def input_opened_model(self, from_save):
+        print(from_save.tl)
+        i = 0
+        j = 0
+        """
+        for task in from_save.tl[::-1]:
+            self.add_task(list(task.keys())[0])
+            for subtasks in list(task.values()):
+                i += 1
+                print('i:',i)
+                print(len(subtasks), type(subtasks))
+                if not isinstance(subtasks, list): list(subtasks)
+                for i in range(len(subtasks)):
+                    j += 1
+                    print('j:', j)
+                    self.add_subtask(False, i, subtasks[i])
+        """
+
+

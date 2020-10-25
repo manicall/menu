@@ -10,6 +10,7 @@ class TasksList(list):
         self.insert(0, {key : []})
 
     def add_subtask(self, ikey, value):
+        ikey = len(self) - int(ikey) - 1
         self[ikey][self.get_task_name(ikey)].insert(0, value)
 
     def change_task_name(self, ikey, key):
@@ -21,6 +22,7 @@ class TasksList(list):
         self[ikey][key] = values
 
     def change_subtask_name(self, ikey, ivalue, value):
+        print(ikey, ivalue)
         self[ikey][self.get_task_name(ikey)][ivalue] = value
 
     def change_subtasks_name(self, ikey, value):

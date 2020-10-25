@@ -115,18 +115,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.dw.tree.model.dataChanged.connect(self.tree_data_changed)
 
     def tree_data_changed(self):
-        row = self.dw.tree.currentIndex().row()
-        print(row)
-
-        parents = [self.dw.tree.model.item(i, 0) for i in range(self.dw.tree.model.rowCount() - 1)]
-        children = []
-        for parent in parents:
-            children.append([parent.child(i,0) for i in range(parent.rowCount() - 1)])
-        iparents = [parent.index for parent in parents]
-        print(row)
-        #print(iparents.)
-        #print('p: ', parents)
-        #print('c: ', children)
+        tree = self.dw.tree
+        ind = tree.currentIndex()
+        print('before:', tree.tl)
+        if ind.isValid():
+            ind_child = ind.child(0, 0)
+            if ind_child.isValid():
+                # выбран родитель
+                tree.tl.change_task_name(ind.row(), ind.data())
+            else:
+                # выбран ребенок
+                tree.tl.change_subtask_name(ind.parent().row(), ind.row(), ind.data())
+        print('after:', tree.tl)
+        self.widget.table.changed = True
 
 
     def dockWidget_visibility_changed(self):
@@ -192,18 +193,20 @@ class MainWindow(QtWidgets.QMainWindow):
             if from_save.model[0][1].text == self.widget.table.model.item(0,1).text():
                 self.settings.setValue('fileName', self.fileName)
                 self.widget.table.input_opened_model(from_save)
+                self.dw.tree.input_opened_model(from_save)
             else: QtWidgets.QMessageBox.critical(self, 'ошибка', "Диапазоны дат не совпадают!")
 
     # открыть раннее сохраненный файл
     def open_early_file(self):
         if self.settings.contains('fileName'):
-            try:
+            #try:
                 file = open(self.fileName, "rb")
                 from_save = pickle.load(file)
                 file.close()
                 self.widget.table.input_opened_model(from_save)
-            except:
-                print('открыть файл с сохранением не удалось')
+                self.dw.tree.input_opened_model(from_save)
+            #except:
+            #    print('открыть файл с сохранением не удалось')
         self.widget.table.changed = False
 
     # обязательный выбор файла при сохранении
