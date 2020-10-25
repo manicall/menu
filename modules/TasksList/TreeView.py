@@ -1,12 +1,14 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from modules.ForSave.ForSave import for_save
+from modules.ForSave.TasksList import myTask, mySubtask
+
+
 class TreeView(QtWidgets.QTreeView):
     def __init__(self):
         QtWidgets.QTreeView.__init__(self)
         self.tl = for_save.tl
         self.buttons = []
         self.parents = []
-        self.count = 0
         self.settings = QtCore.QSettings("experement.ini", QtCore.QSettings.IniFormat)
         # ============================================
         parent_button = QtWidgets.QPushButton('+')
@@ -25,65 +27,61 @@ class TreeView(QtWidgets.QTreeView):
         self.setAnimated(True)
         self.setIndexWidget(self.model.index(0, 0), parent_button)
 
-
     def contextMenuEvent(self, event):
         act = (QtWidgets.QAction('удалить', self))
         act.triggered.connect(self.delete)
         QtWidgets.QMenu.exec([act], event.globalPos(), act, self)
 
     def add_task(self, str='...'):
-        self.tl.add_task('...')
+        #print('at:');
+        #self.tl.outprint()
+        self.tl.add_task(myTask(str))
         parent = QtGui.QStandardItem(str)
         parent.setDragEnabled(True)
         parent.setDragEnabled(False)
-        self.parents.append(parent)
-        self.parents[-1].appendRow(QtGui.QStandardItem())
+        self.parents.insert(0, parent)
+        self.parents[0].appendRow(QtGui.QStandardItem())
         button = QtWidgets.QPushButton('+')
         button.setFixedWidth(20)
         button.setFixedHeight(20)
         button.setToolTip('Создать подзадачу')
-        self.buttons.append(button)
-        self.buttons[-1].clicked.connect(lambda event, i=self.count: self.add_subtask(event, i))
-        self.model.insertRow(0, self.parents[-1])
-        self.setIndexWidget(self.parents[-1].index().child(0, 0), self.buttons[-1])
-        self.count += 1
+        self.buttons.insert(0, button)
+        self.buttons[0].clicked.connect(lambda: self.add_subtask())
+        self.model.insertRow(0, self.parents[0])
+        self.setIndexWidget(self.parents[0].index().child(0, 0), self.buttons[0])
 
-    def add_subtask(self, event, i, str='...'):
-        self.tl.add_subtask(i, str)
+    def add_subtask(self, i=None, str='...', checkState=0):
+        if i is None:
+            i = self.currentIndex().parent().row()
+        #self.tl.outprint()
+        self.tl[i].add_subtask(mySubtask(str, checkState))
         child = QtGui.QStandardItem(str)
         child.setCheckable(True)
+        child.setCheckState(checkState)
+        print(i, self.parents[i].text())
         self.parents[i].insertRow(0, child)
 
-    def delete(self):
+    def delete(self):  # удалить задачу
         ind = self.currentIndex()
         if ind.isValid():
             ind_child = ind.child(0, 0)
             if ind_child.isValid():
                 pass
                 # выбран родитель
+                self.parents.pop(ind.row())
                 self.model.removeRow(ind.row())
-                self.tl.pop_task()
+                self.tl.pop_task(ind.row())
             else:
                 # выбран ребенок
-                self.model.item(ind.parent().row(), 0).removeRow(0)
-                self.tl.pop_subtask()
+                print(ind.parent().row(), ind.row())
+                self.model.item(ind.parent().row(), 0).removeRow(ind.row())
+                self.tl[ind.parent().row()].pop_subtask(ind.row())
 
     def input_opened_model(self, from_save):
-        print(from_save.tl)
-        i = 0
-        j = 0
-        """
-        for task in from_save.tl[::-1]:
-            self.add_task(list(task.keys())[0])
-            for subtasks in list(task.values()):
-                i += 1
-                print('i:',i)
-                print(len(subtasks), type(subtasks))
-                if not isinstance(subtasks, list): list(subtasks)
-                for i in range(len(subtasks)):
-                    j += 1
-                    print('j:', j)
-                    self.add_subtask(False, i, subtasks[i])
-        """
-
-
+        tl = from_save.tl
+        tl.outprint()
+        for i in range(len(tl) - 1, -1, -1):
+            self.add_task(tl[i].name)
+        for i in range(len(tl) - 1, -1, -1):
+            for j in range(len(tl[i].subtasks) - 1, -1, -1):
+                self.add_subtask(i, tl[i].subtasks[j].name, tl[i].subtasks[j].checked)

@@ -4,8 +4,6 @@ class ModelForSave(list):
         self.columnCount = 0
 
         # заполнение модели пустыми значениями
-
-
     def set_item(self, row, column, myItem):
         if self[row][column] == None:
             self[row].pop(column)

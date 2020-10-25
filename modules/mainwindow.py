@@ -115,18 +115,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.dw.tree.model.dataChanged.connect(self.tree_data_changed)
 
     def tree_data_changed(self):
-        tree = self.dw.tree
-        ind = tree.currentIndex()
-        print('before:', tree.tl)
-        if ind.isValid():
-            ind_child = ind.child(0, 0)
-            if ind_child.isValid():
-                # выбран родитель
-                tree.tl.change_task_name(ind.row(), ind.data())
-            else:
-                # выбран ребенок
-                tree.tl.change_subtask_name(ind.parent().row(), ind.row(), ind.data())
-        print('after:', tree.tl)
         self.widget.table.changed = True
 
 
@@ -175,11 +163,13 @@ class MainWindow(QtWidgets.QMainWindow):
                                                                   "Файл (*.bin)")[0]
         if self.fileName:
             self.settings.setValue('fileName', self.fileName)
+            self.save_tasklist()
             print(self.fileName)
             file = open(self.fileName, "wb")
             pickle.dump(self.widget.table.for_save, file)
             file.close()
             self.widget.table.changed = False
+
 
     # открытие информации о таблице
     def read(self):
@@ -199,15 +189,18 @@ class MainWindow(QtWidgets.QMainWindow):
     # открыть раннее сохраненный файл
     def open_early_file(self):
         if self.settings.contains('fileName'):
-            #try:
+            try:
+                self.show()
                 file = open(self.fileName, "rb")
                 from_save = pickle.load(file)
                 file.close()
                 self.widget.table.input_opened_model(from_save)
                 self.dw.tree.input_opened_model(from_save)
-            #except:
-            #    print('открыть файл с сохранением не удалось')
-        self.widget.table.changed = False
+                #print('fs:'); from_save.tl.outprint()
+            except:
+                print(sys.exc_info())
+            self.widget.table.changed = False
+
 
     # обязательный выбор файла при сохранении
     def save_as(self):
@@ -216,6 +209,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                                               "Файл (*.bin)")[0]
         if self.fileName:
             self.settings.setValue('fileName', self.fileName)
+            self.save_tasklist()
             print(self.fileName)
             file = open(self.fileName, "wb")
             pickle.dump(self.widget.table.for_save, file)
@@ -241,3 +235,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.close()
         # запуск текущей программы
         subprocess.call(['py']+sys.argv)
+
+    def save_tasklist(self):
+        tree = self.dw.tree
+        for i in range(tree.model.rowCount() - 1):
+            parent = tree.model.item(i, 0)
+            tree.tl[i].name = parent.text()
+            print('p:', parent.text())
+            for j in range(parent.rowCount() - 1):
+                child = parent.child(j, 0)
+                tree.tl.outprint()
+                print(i,j)
+                tree.tl[i].subtasks[j].name = child.text()
+                tree.tl[i].subtasks[j].checked = child.data(QtCore.Qt.CheckStateRole)
+                print('c:', child.text(), 'c:', child.data(QtCore.Qt.CheckStateRole))
+        tree.tl.outprint()
