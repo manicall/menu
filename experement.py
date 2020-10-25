@@ -1,22 +1,14 @@
-# -*- coding: utf-8 -*-
-from timeit import Timer
-code1 = """\
-i, j = 1, 0
-while i < 10001:
- j += i
- i += 1
-"""
-t1 = Timer(stmt=code1)
-print("while:", t1.timeit(number=10000))
-code2 = """\
-j = 0
-for i in range(1, 10001):
- j += i 
-"""
-t2 = Timer(stmt=code2)
-print("for:", t2.timeit(number=10000))
-code3 = """\
-j = sum(range(1, 10001))
-"""
-t3 = Timer(stmt=code3)
-print("sum:", t3.timeit(number=10000)) 
+from threading import Thread
+from time import sleep
+def func(f):
+    print(f)
+    for i in range(5):
+        print(f"from child thread: {i}")
+        sleep(0.5)
+
+
+th = Thread(target=lambda f='fuck\n': func(f))
+th.start()
+for i in range(5):
+    print(f"from main thread: {i}")
+    sleep(1)

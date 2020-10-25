@@ -6,7 +6,7 @@ import webbrowser
 import pickle
 import subprocess
 import sys
-
+from threading import Thread
 
 class MainWindow(QtWidgets.QMainWindow):
     """
@@ -15,7 +15,6 @@ class MainWindow(QtWidgets.QMainWindow):
     Связывание меню и строки инструментов со строкой состояния.
     Создание постоянного сообщения на строке состояния.
     """
-
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent, flags=QtCore.Qt.Window)
         self.settings = QtCore.QSettings("config.ini", QtCore.QSettings.IniFormat)
@@ -24,7 +23,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.widget)
         menuBar = self.menuBar()
         toolBar = QtWidgets.QToolBar()
-
         # первое меню=========================================================
         myMenuFile = menuBar.addMenu("&Файл")
         action = myMenuFile.addAction(QtGui.QIcon(r"images/new.png"),
@@ -117,7 +115,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def tree_data_changed(self):
         self.widget.table.changed = True
 
-
     def dockWidget_visibility_changed(self):
         self.status_bar.clearMessage()
         if self.dw.isVisible():
@@ -182,7 +179,8 @@ class MainWindow(QtWidgets.QMainWindow):
             file.close()
             if from_save.model[0][1].text == self.widget.table.model.item(0,1).text():
                 self.settings.setValue('fileName', self.fileName)
-                self.widget.table.input_opened_model(from_save)
+                th1 = Thread(target=lambda f=from_save:self.widget.table.input_opened_model(from_save))
+                th1.start()
                 self.dw.tree.input_opened_model(from_save)
             else: QtWidgets.QMessageBox.critical(self, 'ошибка', "Диапазоны дат не совпадают!")
 
@@ -194,9 +192,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 file = open(self.fileName, "rb")
                 from_save = pickle.load(file)
                 file.close()
-                self.widget.table.input_opened_model(from_save)
+                th1 = Thread(target=lambda f=from_save:self.widget.table.input_opened_model(from_save), daemon=True)
+                th1.start()
                 self.dw.tree.input_opened_model(from_save)
-                #print('fs:'); from_save.tl.outprint()
             except:
                 print(sys.exc_info())
             self.widget.table.changed = False
@@ -241,12 +239,7 @@ class MainWindow(QtWidgets.QMainWindow):
         for i in range(tree.model.rowCount() - 1):
             parent = tree.model.item(i, 0)
             tree.tl[i].name = parent.text()
-            print('p:', parent.text())
             for j in range(parent.rowCount() - 1):
                 child = parent.child(j, 0)
-                tree.tl.outprint()
-                print(i,j)
                 tree.tl[i].subtasks[j].name = child.text()
                 tree.tl[i].subtasks[j].checked = child.data(QtCore.Qt.CheckStateRole)
-                print('c:', child.text(), 'c:', child.data(QtCore.Qt.CheckStateRole))
-        tree.tl.outprint()
