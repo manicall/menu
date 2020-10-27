@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from modules.mydate import myDate
 from modules.models import Models
+from modules.ForSave import ForSave
 from modules.ForSave.ForSave import myItem, SpannedCells
 import datetime as dt
 import calendar
@@ -9,7 +10,7 @@ import sys
 
 class Table:
     def __init__(self):
-        self.changed = False
+        self.changed = ForSave.changed
         self.myD = myDate()
         self.model = Models().model
         self.for_save = Models().for_save

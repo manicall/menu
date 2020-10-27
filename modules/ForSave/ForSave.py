@@ -35,3 +35,4 @@ class ForSave:
         self.spanned_cells.pop()
 
 for_save = ForSave()
+changed = False

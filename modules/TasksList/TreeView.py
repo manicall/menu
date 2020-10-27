@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from modules.ForSave.ForSave import for_save
 from modules.ForSave.TasksList import myTask, mySubtask
-import sys
+from modules.ForSave import ForSave
 
 
 class TreeView(QtWidgets.QTreeView):
@@ -10,11 +10,23 @@ class TreeView(QtWidgets.QTreeView):
         self.tl = for_save.tl
         self.buttons = []
         self.parents = []
+        self.settings = QtCore.QSettings("experement.ini", QtCore.QSettings.IniFormat)
+        # ============================================
+        parent_button = QtWidgets.QPushButton('+')
+        parent_button.setFixedWidth(20)
+        parent_button.setFixedHeight(20)
+        parent_button.clicked.connect(lambda: self.add_task())
+        parent_for_button = QtGui.QStandardItem()
+        parent_for_button.setSelectable(False)
+        parent_for_button.setToolTip('Создать задачу')
+        # ============================================
         self.model = QtGui.QStandardItemModel()
-        self.set_parent_button()
+        self.model.appendRow(parent_for_button)
+        # ===========================================
         self.setHeaderHidden(True)
         self.setModel(self.model)
         self.setAnimated(True)
+        self.setIndexWidget(self.model.index(0, 0), parent_button)
 
     def contextMenuEvent(self, event):
         act = (QtWidgets.QAction('удалить', self))
@@ -22,6 +34,7 @@ class TreeView(QtWidgets.QTreeView):
         QtWidgets.QMenu.exec([act], event.globalPos(), act, self)
 
     def add_task(self, str='...'):
+        ForSave.changed = True
         self.tl.add_task(myTask(str))
         parent = QtGui.QStandardItem(str)
         parent.setDragEnabled(True)
@@ -36,18 +49,23 @@ class TreeView(QtWidgets.QTreeView):
         self.buttons[0].clicked.connect(lambda: self.add_subtask())
         self.model.insertRow(0, self.parents[0])
         self.setIndexWidget(self.parents[0].index().child(0, 0), self.buttons[0])
+        self.edit(self.currentIndex().sibling(0, 0))
 
     def add_subtask(self, i=None, str='...', checkState=0):
+        ForSave.changed = True
         if i is None:
             i = self.currentIndex().parent().row()
+        #self.tl.outprint()
         self.tl[i].add_subtask(mySubtask(str, checkState))
         child = QtGui.QStandardItem(str)
         child.setCheckable(True)
         child.setCheckState(checkState)
         print(i, self.parents[i].text())
         self.parents[i].insertRow(0, child)
+        self.edit(self.currentIndex().sibling(0, 0))
 
     def delete(self):  # удалить задачу
+        ForSave.changed = True
         ind = self.currentIndex()
         if ind.isValid():
             try:
@@ -62,12 +80,10 @@ class TreeView(QtWidgets.QTreeView):
                     print(ind.parent().row(), ind.row())
                     self.model.item(ind.parent().row(), 0).removeRow(ind.row())
                     self.tl[ind.parent().row()].pop_subtask(ind.row())
-            except: print(sys.exc_info())
+            except:
+                print(sys.exc_info())
 
     def input_opened_model(self, from_save):
-        
-        self.model.clear()
-        self.set_parent_button()
         tl = from_save.tl
         tl.outprint()
         for i in range(len(tl) - 1, -1, -1):
@@ -75,17 +91,3 @@ class TreeView(QtWidgets.QTreeView):
         for i in range(len(tl) - 1, -1, -1):
             for j in range(len(tl[i].subtasks) - 1, -1, -1):
                 self.add_subtask(i, tl[i].subtasks[j].name, tl[i].subtasks[j].checked)
-
-    def set_parent_button(self):
-        # ============================================
-        parent_button = QtWidgets.QPushButton('+')
-        parent_button.setFixedWidth(20)
-        parent_button.setFixedHeight(20)
-        parent_button.clicked.connect(lambda: self.add_task())
-        parent_for_button = QtGui.QStandardItem()
-        parent_for_button.setSelectable(False)
-        parent_for_button.setToolTip('Создать задачу')
-        # ============================================
-        self.model.appendRow(parent_for_button)
-        self.setIndexWidget(self.model.index(0, 0), parent_button)
-        # ===========================================
