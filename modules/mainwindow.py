@@ -157,7 +157,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.settings.contains('fileName'):
             self.fileName = QtWidgets.QFileDialog.getSaveFileName(self,
                                                                   "Выберите файл", self.fileName,
-                                                                  "Файл (*.bin)")[0]
+                                                                  "Файл (*.svdfl)")[0]
         if self.fileName:
             self.settings.setValue('fileName', self.fileName)
             self.save_tasklist()
@@ -169,10 +169,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     # открытие информации о таблице
-    def read(self):
-        self.fileName = QtWidgets.QFileDialog.getOpenFileName(self,
-                                                              "Выберите файл", self.fileName,
-                                                              "Файл (*.bin)")[0]
+    def read(self, fileName=None):
+        if fileName is None:
+            self.fileName = QtWidgets.QFileDialog.getOpenFileName(self,
+                                                                  "Выберите файл", self.fileName,
+                                                                  "Файл (*.svdfl)")[0]
+        else:
+            self.fileName = fileName
         if self.fileName:
             file = open(self.fileName, "rb")
             from_save = pickle.load(file)
@@ -204,7 +207,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def save_as(self):
         self.fileName = QtWidgets.QFileDialog.getSaveFileName(self,
                                                               "Выберите файл", self.fileName,
-                                                              "Файл (*.bin)")[0]
+                                                              "Файл (*.svdfl)")[0]
         if self.fileName:
             self.settings.setValue('fileName', self.fileName)
             self.save_tasklist()
