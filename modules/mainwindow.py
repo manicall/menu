@@ -17,6 +17,10 @@ class MainWindow(QtWidgets.QMainWindow):
     """
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent, flags=QtCore.Qt.Window)
+        self.setWindowTitle("расписание задач")
+        self.setWindowIcon(QtGui.QIcon('images\svd.png'))
+
+
         self.settings = QtCore.QSettings("config.ini", QtCore.QSettings.IniFormat)
         self.fileName = self.settings.value('fileName')
         self.widget = Widget()
@@ -74,11 +78,6 @@ class MainWindow(QtWidgets.QMainWindow):
             "Открыть расписание",
             lambda : webbrowser.open(r'https://knastu.ru/students/schedule?g=8f699737-a4ce-4303-a349-62b3bb90fe06'))
         action.setStatusTip("Показать список задач")
-
-        menuBar.addAction(
-            "для отладки",
-            self.tree_data_changed
-        )
 
         # toolbar_colors==========================================
         self.buttons = [QtWidgets.QPushButton() for i in range(len(colors))]  # генератор

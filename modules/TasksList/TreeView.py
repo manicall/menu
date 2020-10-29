@@ -34,34 +34,47 @@ class TreeView(QtWidgets.QTreeView):
         QtWidgets.QMenu.exec([act], event.globalPos(), act, self)
 
     def add_task(self, str='...'):
+        # глобальная переменная, регистрирующая изменения в файле
         ForSave.changed = True
+        # добавляем задачу в список для сохранения
         self.tl.add_task(myTask(str))
+        # создание текстового поля задачи
         parent = QtGui.QStandardItem(str)
-        parent.setDragEnabled(True)
-        parent.setDragEnabled(False)
+        # вставка текстового поля в контейнер
         self.parents.insert(0, parent)
-        self.parents[0].appendRow(QtGui.QStandardItem())
+        # добавление поля для кнопки, которая будет создавать подзадачи
+        item_for_button = QtGui.QStandardItem('')
+        item_for_button.setSelectable(False)
+        self.parents[0].appendRow(item_for_button)
+        # описание кнопки для создания подзадачи
         button = QtWidgets.QPushButton('+')
         button.setFixedWidth(20)
         button.setFixedHeight(20)
         button.setToolTip('Создать подзадачу')
+        # вставка кнопки в контейнер кнопок
         self.buttons.insert(0, button)
+        # добавление подзадачи на нажатие на кнопку
         self.buttons[0].clicked.connect(lambda: self.add_subtask())
+        # вставка текстового поля в модель
         self.model.insertRow(0, self.parents[0])
+        # вставка кнопки на поле для кнопки
         self.setIndexWidget(self.parents[0].index().child(0, 0), self.buttons[0])
         self.edit(self.currentIndex().sibling(0, 0))
 
     def add_subtask(self, i=None, str='...', checkState=0):
         ForSave.changed = True
         if i is None:
+            # индекс задачи, для выбранной под задачи
             i = self.currentIndex().parent().row()
-        #self.tl.outprint()
+        # добавление подзадачи в список для сохранения
         self.tl[i].add_subtask(mySubtask(str, checkState))
+        # описание подзадачи
         child = QtGui.QStandardItem(str)
         child.setCheckable(True)
         child.setCheckState(checkState)
-        print(i, self.parents[i].text())
+        # вставка подзадачи в задачу
         self.parents[i].insertRow(0, child)
+        # режим редактирования для добавленной задачи
         self.edit(self.currentIndex().sibling(0, 0))
 
     def delete(self):  # удалить задачу
@@ -77,9 +90,9 @@ class TreeView(QtWidgets.QTreeView):
                     self.tl.pop_task(ind.row())
                 else:
                     # выбран ребенок
-                    print(ind.parent().row(), ind.row())
-                    self.model.item(ind.parent().row(), 0).removeRow(ind.row())
-                    self.tl[ind.parent().row()].pop_subtask(ind.row())
+                    if ind.row() != self.model.item(ind.parent().row(), 0).rowCount() - 1:
+                        self.model.item(ind.parent().row(), 0).removeRow(ind.row())
+                        self.tl[ind.parent().row()].pop_subtask(ind.row())
             except:
                 print(sys.exc_info())
 
