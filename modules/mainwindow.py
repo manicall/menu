@@ -75,11 +75,6 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda : webbrowser.open(r'https://knastu.ru/students/schedule?g=8f699737-a4ce-4303-a349-62b3bb90fe06'))
         action.setStatusTip("Показать список задач")
 
-        menuBar.addAction(
-            "для отладки",
-            self.tree_data_changed
-        )
-
         # toolbar_colors==========================================
         self.buttons = [QtWidgets.QPushButton() for i in range(len(colors))]  # генератор
         for i in range(len(self.buttons)):
