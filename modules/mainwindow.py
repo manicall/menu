@@ -18,7 +18,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent, flags=QtCore.Qt.Window)
         self.setWindowTitle("расписание задач")
-        self.setWindowIcon(QtGui.QIcon('images\svd.png'))
+        self.setWindowIcon(QtGui.QIcon('images\program_icon.jpg'))
 
 
         self.settings = QtCore.QSettings("config.ini", QtCore.QSettings.IniFormat)

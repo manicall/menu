@@ -70,25 +70,40 @@ class Table:
         for col in range(self.model.columnCount()):
             self.view.showColumn(col)
 
+    def create_dialog(self, icon, title, text, items, current):
+        dialog = QtWidgets.QInputDialog(None)
+        dialog.setWindowIcon(icon)
+        dialog.setWindowTitle(title)
+        dialog.setLabelText(text)
+        dialog.setComboBoxItems(items)
+        dialog.setTextValue(items[current])
+        dialog.setWindowFlags(QtCore.Qt.Widget | QtCore.Qt.WindowCloseButtonHint)
+        dialog.setInputMode(QtWidgets.QInputDialog.TextInput)
+        return dialog
+
     # выбор недели
     def choose_week(self):
-        weeks = []
-        for i in range(self.myD.total_weeks):
-            weeks.append('неделя ' + str(i + 1))
-        answer = QtWidgets.QInputDialog.getItem(None, "Выбор недели",
-                                                "Выбрать неделю", weeks,
-                                                current=self.myD.this_week - 1, editable=False)
+        weeks = ['неделя ' + str(i + 1) for i in range(self.myD.total_weeks)]
+        dialog = self.create_dialog(QtGui.QIcon('images/Week.png'), 'EEK', 'Выбрать неделю', weeks,
+                                    current=self.myD.this_week - 1)
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            answer = dialog.textValue(), True
+        else:
+            answer = dialog.textValue(), False
         return answer
 
     # выбор месяца
     def choose_month(self):
         months = [calendar.month_name[i] for i in range(self.myD.first_date.month, self.myD.last_date.month + 1)]
-        answer = QtWidgets.QInputDialog.getItem(None, "Выбор недели",
-                                                "Выбрать неделю", months,
-                                                current=dt.date.today().month - self.myD.first_date.month,
-                                                editable=False)
+        dialog = self.create_dialog(QtGui.QIcon('images/Month.png'), "ONTH", "Выбрать неделю", months,
+                                    current=dt.date.today().month - self.myD.first_date.month)
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            answer = dialog.textValue(), True
+        else:
+            answer = dialog.textValue(), False
         for i in range(len(months)):
-            if(months[i] == answer[0]):
+            print(months[i], answer[0])
+            if (months[i] == answer[0]):
                 answer = (i + self.myD.first_date.month, answer[1])
         return answer
 
@@ -104,6 +119,7 @@ class Table:
                 else:
                     self.for_save.model.set_item(row, column, myItem(self.model.item(row, column).text()))
             except: print(sys.exc_info(), row, column)
+
         self.view.resizeRowsToContents()
 
     # изменение отображаемой таблицы в соответствии с информацией
