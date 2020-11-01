@@ -34,7 +34,7 @@ class Widget(QtWidgets.QWidget):
         # функции
         funcs = []
         funcs.append(self.span_cells)
-        funcs.append(lambda event, mainWindow=self.mainWindow: self.dialog.out_colors(mainWindow))
+        funcs.append(lambda event, mainWindow=self.mainWindow:  MyDialog().out_colors(mainWindow))
         funcs.append(self.add_icon)
         funcs.append(self.delete_icon)
 
