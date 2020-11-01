@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from modules.widget import Widget, colors
+from modules.widget import Widget
+from modules.colors import colors
 from modules.mydate import myDate
 from modules.TasksList.DockWidget import myDockWidget
 import webbrowser
@@ -7,26 +8,13 @@ import pickle
 import subprocess
 import sys
 from threading import Thread
-
-class MainWindow(QtWidgets.QMainWindow):
-    """
-    Заполнение меню и строки инструментов элементами;
-    привязка действий изображений и горячих клавиш к элементам
-    Связывание меню и строки инструментов со строкой состояния.
-    Создание постоянного сообщения на строке состояния.
-    """
-    def __init__(self, parent=None):
-        QtWidgets.QMainWindow.__init__(self, parent, flags=QtCore.Qt.Window)
-        self.setWindowTitle("расписание задач")
-        self.setWindowIcon(QtGui.QIcon('images\program_icon.jpg'))
+import traceback
 
 
-        self.settings = QtCore.QSettings("config.ini", QtCore.QSettings.IniFormat)
-        self.fileName = self.settings.value('fileName')
-        self.widget = Widget()
-        self.setCentralWidget(self.widget)
+class Menu:
+    def create_menu(self):
         menuBar = self.menuBar()
-        toolBar = QtWidgets.QToolBar()
+        toolBar = self.toolBar
         # первое меню=========================================================
         myMenuFile = menuBar.addMenu("&Файл")
         action = myMenuFile.addAction(QtGui.QIcon(r"images/new.png"),
@@ -76,9 +64,29 @@ class MainWindow(QtWidgets.QMainWindow):
         # четвертое меню============================================
         action = menuBar.addAction(
             "Открыть расписание",
-            lambda : webbrowser.open(r'https://knastu.ru/students/schedule?g=8f699737-a4ce-4303-a349-62b3bb90fe06'))
+            lambda: webbrowser.open(r'https://knastu.ru/students/schedule?g=8f699737-a4ce-4303-a349-62b3bb90fe06'))
         action.setStatusTip("Показать список задач")
 
+
+
+class MainWindow(QtWidgets.QMainWindow, Menu):
+    """
+    Заполнение меню и строки инструментов элементами;
+    привязка действий изображений и горячих клавиш к элементам
+    Связывание меню и строки инструментов со строкой состояния.
+    Создание постоянного сообщения на строке состояния.
+    """
+    def __init__(self, parent=None):
+        QtWidgets.QMainWindow.__init__(self, parent, flags=QtCore.Qt.Window)
+        self.setWindowTitle("PlanTo")
+        self.setWindowIcon(QtGui.QIcon('images\program_icon.jpg'))
+        self.settings = QtCore.QSettings("config.ini", QtCore.QSettings.IniFormat)
+        self.fileName = self.settings.value('fileName')
+        self.widget = Widget(self)
+        self.setCentralWidget(self.widget)
+        self.toolBar = QtWidgets.QToolBar()
+
+        self.create_menu()
         # toolbar_colors==========================================
         self.buttons = [QtWidgets.QPushButton() for i in range(len(colors))]  # генератор
         for i in range(len(self.buttons)):
@@ -86,14 +94,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.buttons[i].move(100, 100)
             self.buttons[i].setStyleSheet('background-color:' + colors[i] + '; margin-left: 2px;')
             self.buttons[i].clicked.connect(lambda event, index=i: self.choose_color(index))
-            toolBar.addWidget(self.buttons[i])
-        toolBar.addSeparator()
+            self.toolBar.addWidget(self.buttons[i])
+        self.toolBar.addSeparator()
         self.comboBox = QtWidgets.QComboBox()
         self.comboBox.addItems(["Установить цвет ячейки", "Установить цвет шрифта"])
-        toolBar.addWidget(self.comboBox)
-        toolBar.setMovable(False)
-        toolBar.setFloatable(False)
-        self.addToolBar(toolBar)
+        self.toolBar.addWidget(self.comboBox)
+        self.toolBar.setMovable(False)
+        self.toolBar.setFloatable(False)
+        self.addToolBar(self.toolBar)
 
         # строка состояния=======================================
         self.myD = myDate()
@@ -160,12 +168,13 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.fileName:
             self.settings.setValue('fileName', self.fileName)
             self.save_tasklist()
-            print(self.fileName)
-            file = open(self.fileName, "wb")
-            pickle.dump(self.widget.table.for_save, file)
-            file.close()
+            try:
+                file = open(self.fileName, "wb")
+                pickle.dump(self.widget.table.for_save, file)
+                file.close()
+            except:
+                self.save_as()
             self.widget.table.changed = False
-
 
     # открытие информации о таблице
     def read(self, fileName=None):
@@ -198,7 +207,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 th1.start()
                 self.dw.tree.input_opened_model(from_save)
             except:
-                print(sys.exc_info())
+                traceback.print_tb(sys.exc_info()[2], file=sys.stdout)
+                print('ERROR:', sys.exc_info()[1])
             self.widget.table.changed = False
 
 
@@ -217,14 +227,16 @@ class MainWindow(QtWidgets.QMainWindow):
             self.widget.table.changed = False
 
     # выбор цвета из меню на toolbar
-    def choose_color(self, i):
+    def choose_color(self, i, dialog=None):
         try:
             if self.comboBox.currentText() == "Установить цвет ячейки":
                 self.widget.set_cell_color(i)
             if self.comboBox.currentText() == "Установить цвет шрифта":
                 self.widget.set_font_color(i)
         except:
-            pass
+            traceback.print_tb(sys.exc_info()[2], file=sys.stdout)
+            print('ERROR:', sys.exc_info()[1])
+        if dialog is not None: dialog.close()
 
     # заново открыть текущую программу
     def clear_all_cells(self):

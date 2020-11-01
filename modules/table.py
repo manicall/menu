@@ -6,7 +6,7 @@ from modules.ForSave.ForSave import myItem, SpannedCells
 import datetime as dt
 import calendar
 import sys
-
+import traceback
 
 class Table:
     def __init__(self):
@@ -118,7 +118,9 @@ class Table:
                     self.for_save.model[row][column].text = self.model.item(row, column).text()
                 else:
                     self.for_save.model.set_item(row, column, myItem(self.model.item(row, column).text()))
-            except: print(sys.exc_info(), row, column)
+            except:
+                traceback.print_tb(sys.exc_info()[2], file=sys.stdout)
+                print('ERROR:', sys.exc_info()[1])
 
         self.view.resizeRowsToContents()
 

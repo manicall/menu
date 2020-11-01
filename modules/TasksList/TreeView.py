@@ -3,6 +3,7 @@ from modules.ForSave.ForSave import for_save
 from modules.ForSave.TasksList import myTask, mySubtask
 from modules.ForSave import ForSave
 import sys
+import traceback
 
 class TreeView(QtWidgets.QTreeView):
     def __init__(self):
@@ -94,7 +95,8 @@ class TreeView(QtWidgets.QTreeView):
                         self.model.item(ind.parent().row(), 0).removeRow(ind.row())
                         self.tl[ind.parent().row()].pop_subtask(ind.row())
             except:
-                print(sys.exc_info())
+                traceback.print_tb(sys.exc_info()[2], file=sys.stdout)
+                print('ERROR:', sys.exc_info()[1])
 
     def input_opened_model(self, from_save):
         tl = from_save.tl

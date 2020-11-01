@@ -13,4 +13,3 @@ class myDockWidget(QtWidgets.QDockWidget):
         self.setVisible(False)
         self.setWidget(self.tree)
 
-

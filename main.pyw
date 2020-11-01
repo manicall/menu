@@ -25,7 +25,6 @@ if __name__ == '__main__':
             exit(1)
     else:
         window.open_early_file()
-
     window.show()
     print("--- %s seconds ---" % (time.time() - start_time))
     window_result = app.exec()
