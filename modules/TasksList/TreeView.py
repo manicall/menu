@@ -30,9 +30,11 @@ class TreeView(QtWidgets.QTreeView):
         self.setIndexWidget(self.model.index(0, 0), parent_button)
 
     def contextMenuEvent(self, event):
-        act = (QtWidgets.QAction('удалить', self))
-        act.triggered.connect(self.delete)
-        QtWidgets.QMenu.exec([act], event.globalPos(), act, self)
+        act1 = (QtWidgets.QAction('удалить', self))
+        act1.triggered.connect(self.delete)
+        act2 = (QtWidgets.QAction('переименовать', self))
+        act2.triggered.connect(lambda: self.edit(self.currentIndex().sibling(self.currentIndex().row(), 0)))
+        QtWidgets.QMenu.exec([act1, act2], event.globalPos(), act1, self)
 
     def add_task(self, str='...'):
         # глобальная переменная, регистрирующая изменения в файле

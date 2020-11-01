@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
-from PyQt5 import QtWidgets, QtCore, QtGui
 from modules.mainwindow import MainWindow
 import time
 import re

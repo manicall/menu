@@ -20,7 +20,7 @@ class Table:
         self.this_week()
         for i in range(self.model.columnCount()):
             self.view.setColumnWidth(i, 150)
-        self.view.resizeRowToContents(0)
+        self.view.resizeRowsToContents()
 
 
     def this_week(self):
@@ -30,6 +30,7 @@ class Table:
         self.showAllColumns()
         self.hideColumns(1, number_of_week * self.myD.WEEK - 1)
         self.hideColumns((number_of_week + 1) * self.myD.WEEK, (weeks_before_last_date - 1) * self.myD.WEEK)
+        self.view.resizeRowsToContents()
 
     #расписание на выбранную неделю
     def show_week_table(self):
@@ -41,6 +42,7 @@ class Table:
             self.showAllColumns()
             self.hideColumns(1, number_of_week*self.myD.WEEK - 1)
             self.hideColumns((number_of_week+1)*self.myD.WEEK, (weeks_before_last_date - 1)*self.myD.WEEK)
+            self.view.resizeRowsToContents()
 
     #расписание на выбранный месяц
     def show_month_table(self):
@@ -57,10 +59,12 @@ class Table:
             while (i <= self.myD.total_days + 1):
                 self.view.hideColumn(i)
                 i+=1
+            self.view.resizeRowsToContents()
 
     # расписание на весь период
     def show_semestr_table(self):
         self.showAllColumns()
+        self.view.resizeRowsToContents()
 
     def hideColumns(self, col, count):
         for i in range(count):

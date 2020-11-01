@@ -22,6 +22,10 @@ class Widget(QtWidgets.QWidget):
         if e.modifiers() & QtCore.Qt.ControlModifier:
             if e.key() == QtCore.Qt.Key_H:
                 MyDialog().out_colors(self.mainWindow)
+        if e.key() == QtCore.Qt.Key_Delete:
+            self.table.model.setItem(self.table.view.currentIndex().row(),
+                                     self.table.view.currentIndex().column(),
+                                     QtGui.QStandardItem(''))
 
     def contextMenuEvent(self, event):
         # действия
