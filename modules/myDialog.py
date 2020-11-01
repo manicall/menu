@@ -59,7 +59,6 @@ class MyDialog(QtWidgets.QDialog, Icon):
         self.exec()
 
     def out_colors(self, mainWindow):
-        print(mainWindow)
         Color.out_colors(self, mainWindow)
         self.move(QtGui.QCursor.pos())
         self.exec()

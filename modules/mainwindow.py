@@ -68,7 +68,6 @@ class Menu:
         action.setStatusTip("Показать список задач")
 
 
-
 class MainWindow(QtWidgets.QMainWindow, Menu):
     """
     Заполнение меню и строки инструментов элементами;
@@ -78,9 +77,9 @@ class MainWindow(QtWidgets.QMainWindow, Menu):
     """
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent, flags=QtCore.Qt.Window)
-        self.setWindowTitle("PlanTo")
-        self.setWindowIcon(QtGui.QIcon('images\program_icon.jpg'))
-        self.settings = QtCore.QSettings("config.ini", QtCore.QSettings.IniFormat)
+        self.setWindowTitle("ToPlan")
+        self.setWindowIcon(QtGui.QIcon('images\program_icon.png'))
+        self.settings = QtCore.QSettings("settings\config.ini", QtCore.QSettings.IniFormat)
         self.fileName = self.settings.value('fileName')
         self.widget = Widget(self)
         self.setCentralWidget(self.widget)
@@ -113,7 +112,7 @@ class MainWindow(QtWidgets.QMainWindow, Menu):
         self.status_bar.setSizeGripEnabled(False)
         self.status_bar.addPermanentWidget(self.label1)
         self.status_bar.addPermanentWidget(self.label2)
-        #======================================================
+        # ======================================================
         self.dw = myDockWidget()
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.dw)
         self.dw.visibilityChanged.connect(self.dockWidget_visibility_changed)
@@ -188,12 +187,13 @@ class MainWindow(QtWidgets.QMainWindow, Menu):
             file = open(self.fileName, "rb")
             from_save = pickle.load(file)
             file.close()
-            if from_save.model[0][1].text == self.widget.table.model.item(0,1).text():
+            if from_save.model[0][1].text == self.widget.table.model.item(0, 1).text():
                 self.settings.setValue('fileName', self.fileName)
-                th1 = Thread(target=lambda f=from_save:self.widget.table.input_opened_model(from_save))
+                th1 = Thread(target=lambda f=from_save: self.widget.table.input_opened_model(from_save))
                 th1.start()
                 self.dw.tree.input_opened_model(from_save)
-            else: QtWidgets.QMessageBox.critical(self, 'ошибка', "Диапазоны дат не совпадают!")
+            else:
+                QtWidgets.QMessageBox.critical(self, 'ошибка', "Диапазоны дат не совпадают!")
 
     # открыть раннее сохраненный файл
     def open_early_file(self):
@@ -203,14 +203,13 @@ class MainWindow(QtWidgets.QMainWindow, Menu):
                 file = open(self.fileName, "rb")
                 from_save = pickle.load(file)
                 file.close()
-                th1 = Thread(target=lambda f=from_save:self.widget.table.input_opened_model(from_save), daemon=True)
+                th1 = Thread(target=lambda f=from_save: self.widget.table.input_opened_model(from_save), daemon=True)
                 th1.start()
                 self.dw.tree.input_opened_model(from_save)
             except:
                 traceback.print_tb(sys.exc_info()[2], file=sys.stdout)
                 print('ERROR:', sys.exc_info()[1])
             self.widget.table.changed = False
-
 
     # обязательный выбор файла при сохранении
     def save_as(self):
@@ -220,7 +219,6 @@ class MainWindow(QtWidgets.QMainWindow, Menu):
         if self.fileName:
             self.settings.setValue('fileName', self.fileName)
             self.save_tasklist()
-            print(self.fileName)
             file = open(self.fileName, "wb")
             pickle.dump(self.widget.table.for_save, file)
             file.close()
@@ -246,7 +244,7 @@ class MainWindow(QtWidgets.QMainWindow, Menu):
         self.settings.sync()
         self.close()
         # запуск текущей программы
-        subprocess.call(['py']+sys.argv)
+        subprocess.call(['py'] + sys.argv)
 
     def save_tasklist(self):
         tree = self.dw.tree

@@ -100,7 +100,6 @@ class TreeView(QtWidgets.QTreeView):
 
     def input_opened_model(self, from_save):
         tl = from_save.tl
-        tl.outprint()
         for i in range(len(tl) - 1, -1, -1):
             self.add_task(tl[i].name)
         for i in range(len(tl) - 1, -1, -1):

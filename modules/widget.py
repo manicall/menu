@@ -16,12 +16,12 @@ class Widget(QtWidgets.QWidget):
         vBoxMain.addWidget(self.table.view)
         self.setLayout(vBoxMain)
         self.mainWindow = parent
-        self.dialog = MyDialog()
+
 
     def keyPressEvent(self, e):
         if e.modifiers() & QtCore.Qt.ControlModifier:
             if e.key() == QtCore.Qt.Key_H:
-                self.dialog.out_colors(self.mainWindow)
+                MyDialog().out_colors(self.mainWindow)
 
     def contextMenuEvent(self, event):
         # действия
@@ -45,12 +45,13 @@ class Widget(QtWidgets.QWidget):
         QtWidgets.QMenu.exec(acts, event.globalPos(), acts[0], self)
 
     def add_icon(self):
-        self.dialog.out_icons()
+        dialog = MyDialog()
+        dialog.out_icons()
         row, column = (self.table.view.currentIndex().row(), self.table.view.currentIndex().column())
-        self.table.model.setData(self.table.model.index(row, column), QtGui.QIcon(self.dialog.choosen_path),
+        self.table.model.setData(self.table.model.index(row, column), QtGui.QIcon(dialog.choosen_path),
                                  role=QtCore.Qt.DecorationRole)
         # запоминает изменения
-        self.table.for_save.model.set_item(row, column, myItem(icon=self.dialog.choosen_path))
+        self.table.for_save.model.set_item(row, column, myItem(icon=dialog.choosen_path))
 
     def delete_icon(self):
         row, column = (self.table.view.currentIndex().row(), self.table.view.currentIndex().column())

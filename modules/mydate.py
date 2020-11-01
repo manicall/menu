@@ -9,7 +9,7 @@ class myDate:
         locale.setlocale(locale.LC_ALL, "Russian_Russia.1251")
         self.WEEK = 7
         #===================
-        self.settings = QtCore.QSettings("config.ini", QtCore.QSettings.IniFormat)
+        self.settings = QtCore.QSettings("settings\config.ini", QtCore.QSettings.IniFormat)
         if not (self.settings.contains('firstDate') and self.settings.contains('lastDate')):
             dialog = DialogDate()
             result = dialog.exec()

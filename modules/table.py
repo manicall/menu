@@ -102,7 +102,6 @@ class Table:
         else:
             answer = dialog.textValue(), False
         for i in range(len(months)):
-            print(months[i], answer[0])
             if (months[i] == answer[0]):
                 answer = (i + self.myD.first_date.month, answer[1])
         return answer
@@ -121,7 +120,6 @@ class Table:
             except:
                 traceback.print_tb(sys.exc_info()[2], file=sys.stdout)
                 print('ERROR:', sys.exc_info()[1])
-
         self.view.resizeRowsToContents()
 
     # изменение отображаемой таблицы в соответствии с информацией

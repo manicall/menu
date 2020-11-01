@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui, QtCore
 import datetime as dt
 
 
 class DialogDate(QtWidgets.QDialog):
     def __init__(self, parent=None):
-        QtWidgets.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.SubWindow)
         self.first_date = None
         self.last_date = None
         self.setWindowTitle("Выбрать диапазон")
@@ -15,8 +15,8 @@ class DialogDate(QtWidgets.QDialog):
         delta = dt.timedelta(days=365)
         dt_min = dt.date(dt.date.today().year, 1, 1)
         dt_max = dt.date(dt.date.today().year, 12, 31)
-        self.dateTimeEdit1 = QtWidgets.QDateEdit(dt.date(dt.date.today().year, 1, 1))
-        self.dateTimeEdit2 = QtWidgets.QDateEdit(dt.date(dt.date.today().year, 12, 31))
+        self.dateTimeEdit1 = QtWidgets.QDateEdit(dt.date(dt.date.today().year, 9, 1))
+        self.dateTimeEdit2 = QtWidgets.QDateEdit(dt.date(dt.date.today().year, 12, 21))
         self.dateTimeEdit1.setDateRange(dt_min, dt_max)
         self.dateTimeEdit1.setCalendarPopup(True)
         self.dateTimeEdit2.setDateRange(dt_min, dt_max)
