@@ -46,26 +46,27 @@ class Menu:
 
         # Второе меню===============================================
         menuBar = self.menuBar()
-        self.myMenuModel = menuBar.addMenu("&Модель таблицы")
-        action = self.myMenuModel.addAction("По умолчанию", self.widget.table.this_week)
+        myMenuModel = menuBar.addMenu("&Модель таблицы")
+        action = myMenuModel.addAction("По умолчанию", self.widget.table.this_week, QtCore.Qt.ALT + QtCore.Qt.Key_D)
         action.setStatusTip("текущая неделя")
-        self.myMenuModel.addSeparator()
-        action = self.myMenuModel.addAction("Неделя", self.widget.table.show_week_table)
+        myMenuModel.addSeparator()
+        action = myMenuModel.addAction("Неделя", self.widget.table.show_week_table, QtCore.Qt.ALT + QtCore.Qt.Key_W)
         action.setStatusTip("Выбрать неделю")
-        action = self.myMenuModel.addAction("Месяц", self.widget.table.show_month_table)
+        action = myMenuModel.addAction("Месяц", self.widget.table.show_month_table, QtCore.Qt.ALT + QtCore.Qt.Key_M)
         action.setStatusTip("Выбрать месяц")
-        action = self.myMenuModel.addAction("На семестр", self.widget.table.show_semestr_table)
+        action = myMenuModel.addAction("На семестр", self.widget.table.show_semestr_table,
+                                       QtCore.Qt.ALT + QtCore.Qt.Key_S)
         action.setStatusTip("Показать таблицу по всему семестру")
 
         # третье меню===============================================
-        self.dwAction = menuBar.addAction("Показать список задач", self.dockWidget_visible_control)
+        self.dwAction = menuBar.addAction("Показать с&писок задач", self.dockWidget_visible_control)
         self.dwAction.setStatusTip("Показать список задач")
 
         # четвертое меню============================================
         action = menuBar.addAction(
-            "Открыть расписание",
+            "Открыть &расписание",
             lambda: webbrowser.open(r'https://knastu.ru/students/schedule?g=8f699737-a4ce-4303-a349-62b3bb90fe06'))
-        action.setStatusTip("Показать список задач")
+        action.setStatusTip("Открыть расписание")
 
 
 class MainWindow(QtWidgets.QMainWindow, Menu):
@@ -75,6 +76,7 @@ class MainWindow(QtWidgets.QMainWindow, Menu):
     Связывание меню и строки инструментов со строкой состояния.
     Создание постоянного сообщения на строке состояния.
     """
+
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent, flags=QtCore.Qt.Window)
         self.setWindowTitle("ToPlan")
@@ -124,20 +126,20 @@ class MainWindow(QtWidgets.QMainWindow, Menu):
     def dockWidget_visibility_changed(self):
         self.status_bar.clearMessage()
         if self.dw.isVisible():
-            self.dwAction.setText('Скрыть список задач')
+            self.dwAction.setText('Скрыть с&писок задач')
             self.dwAction.setStatusTip('Скрыть список задач')
         else:
-            self.dwAction.setText('Показать список задач')
+            self.dwAction.setText('Показать с&писок задач')
             self.dwAction.setStatusTip('Показать список задач')
 
     def dockWidget_visible_control(self):
         self.status_bar.clearMessage()
         if self.dw.isVisible():
-            self.dwAction.setText('Скрыть список задач')
+            self.dwAction.setText('Скрыть с&писок задач')
             self.dwAction.setStatusTip('Скрыть список задач')
             self.dw.setVisible(False)
         else:
-            self.dwAction.setText('Показать список задач')
+            self.dwAction.setText('Показать с&писок задач')
             self.dwAction.setStatusTip('Показать список задач')
             self.dw.setVisible(True)
 

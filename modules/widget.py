@@ -23,9 +23,17 @@ class Widget(QtWidgets.QWidget):
             if e.key() == QtCore.Qt.Key_H:
                 MyDialog().out_colors(self.mainWindow)
         if e.key() == QtCore.Qt.Key_Delete:
-            self.table.model.setItem(self.table.view.currentIndex().row(),
-                                     self.table.view.currentIndex().column(),
-                                     QtGui.QStandardItem(''))
+            ind = self.table.view.currentIndex()
+            if ind.column() > 0:
+                self.table.model.setItem(ind.row(), ind.column(), QtGui.QStandardItem(''))
+                if self.table.for_save.model[ind.row()][ind.column()] != None:
+                    self.table.for_save.model[ind.row()][ind.column()].text = myItem().text
+                    self.table.for_save.model[ind.row()][ind.column()].icon = myItem().icon
+                    self.table.for_save.model[ind.row()][ind.column()].font_color = myItem().font_color
+                    self.table.for_save.model[ind.row()][ind.column()].background_color = myItem().background_color
+                else:
+                    self.table.for_save.model.set_item(ind.row(), ind.column(), myItem())
+
 
     def contextMenuEvent(self, event):
         # действия
